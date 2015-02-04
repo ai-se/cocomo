@@ -9,8 +9,7 @@ sys.dont_write_bytecode =True
 from lib import *
 
 @setting
-def COL(**d): return o(
-# Thresholds are from http://goo.gl/25bAh9
+def COL(**d): return o( 
     buffer = 128,
     m = 2,
     k = 1,

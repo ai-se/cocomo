@@ -9,7 +9,6 @@ with respect to the stability of those decisions.
 + [cocomo](doc/cocomo.md):  Core COCOMO Utilities
 + [cocomoeg](doc/cocomoeg.md):  Test Cases for COCOMO
 + [column](doc/column.md):  Defining columns
-+ [column](doc/column.md):  Thresholds are from http://goo.gl/25bAh9
 + [columns](doc/columns.md):  Handling Columns of Data
 + [lib](doc/lib.md):  General stuff
 ## Installation
