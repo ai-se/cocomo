@@ -1,6 +1,6 @@
 <small>_This file is part of LEANER. To know more, view the source code [cocomo.py](../src/cocomo.py) or read our [home](https://github.com/ai-se/cocomo) page._</small>
 
-# Software Effort and Risk Estimation
+# Core COCOMO Utilities
 
 ````python
 
@@ -101,7 +101,7 @@ them with an upper case letter.
 
 ````python
 _ = None;  Coc2tunings = dict(
-#              vlow  low   nom   high  vhigh  xhigh   
+        #       vlow  low   nom   high  vhigh  xhigh   
   Flex=[        5.07, 4.05, 3.04, 2.03, 1.01,    _],
   Pmat=[        7.80, 6.24, 4.68, 3.12, 1.56,    _],
   Prec=[        6.20, 4.96, 3.72, 2.48, 1.24,    _],

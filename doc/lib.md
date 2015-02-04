@@ -8,7 +8,7 @@ import random,math
 
 @setting
 def LIB(**d): return o(
-    # Thresholds are from http://goo.gl/25bAh9
+    "Thresholds are from http://goo.gl/25bAh9"
     dull = [0.147, 0.33, 0.474][0]
   ).update(**d)
 ````
@@ -85,6 +85,7 @@ def msecs(f):
 ## Iterator Stuff
 
 Return all pairs of items i,i+1 from a list.
+
 ````python
 def pairs(lst):
 

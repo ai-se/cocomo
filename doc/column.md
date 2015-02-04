@@ -15,7 +15,7 @@ def COL(**d): return o(
 
 ````
 
-### `Column`: Generic Columns
+## `Column`: Generic Columns
 
 `Column`s keep track of what was seen in a column.
 The general idea is that:

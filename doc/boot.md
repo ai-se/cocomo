@@ -1,4 +1,5 @@
 <small>_This file is part of LEANER. To know more, view the source code [boot.py](../src/boot.py) or read our [home](https://github.com/ai-se/cocomo) page._</small>
+
 # Boot code: stuff needed before anything else
 
 ## `o`: a Generic Holder for Names Slots

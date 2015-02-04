@@ -35,4 +35,4 @@ README.md : etc/readmeHeader etc/readmeFooter  $(md) etc/toc1.awk
 	@cat etc/readmeFooter  >> $@
 	git add $@
 
-publish:  $(md) README.md
+publish:  $(md) README.md typo

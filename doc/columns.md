@@ -18,8 +18,7 @@ from column import *
 import zipfile,re
 
 @setting
-def COLS(**d): return o(
-    # Thresholds are from http://goo.gl/25bAh9
+def COLS(**d): return o( 
     skip="?",
     num="$",
     sep  = ',',
