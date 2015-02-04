@@ -16,19 +16,18 @@ class o:
   def update(i,**d)  : i.d().update(**d); return i
   def has(i,k)    : return k in i.d()
   def __init__(i,**d): i.update(**d)
-  def __repr__(i)    :  
+  def __repr__(i)    : 
+    def name(x):
+      f = lambda x: x.__class__.__name__ == 'function'
+      return x.__name__ if f(x) else x
     keys = [k for k in sorted(i.d().keys()) 
             if k[0] is not "_"]
     show = [':%s %s' % (k, name(i.d()[k])) 
             for k in keys]
     return '{'+' '.join(show)+'}'
-
-def name(x):
-  f = lambda x: x.__class__.__name__ == 'function'
-  return x.__name__ if f(x) else x
 """
 
-## `setting`: a Wrapper that Remembers the Settings
+## `setting`: a Wrapper that remembers the Settings
 
 """
 def setting(f):

@@ -1,3 +1,9 @@
+url="https://github.com/ai-se/cocomo"
+py=$(shell cd src; ls *.py)
+md=doc/$(subst .md ,.md doc/,$(subst .py,.md,$(py)))
+tests=$(shell cd src; ls *eg.py)
+
+make=cd src; $(MAKE) --no-print-directory
 
 typo: gitting
 	- git status
@@ -18,4 +24,15 @@ status:
 gitting:
 	git config --global credential.helper cache
 	git config credential.helper 'cache --timeout=3600'
+	
+doc/%.md : src/%.py
+	@bash etc/py2md $<  "$(url)" > $@
+	git add $@
 
+README.md : etc/readmeHeader etc/readmeFooter  $(md) etc/toc1.awk
+	@cat etc/readmeHeader > $@
+	@$(foreach f,$(py), awk -f etc/toc1.awk src/$f >> $@;)
+	@cat etc/readmeFooter  >> $@
+	git add $@
+
+publish:  $(md) README.md

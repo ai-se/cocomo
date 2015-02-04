@@ -1,0 +1,29 @@
+#!/bin/bash
+
+file="$1"
+url="$2"
+base=`basename $1`
+stem="${base%.*}"
+src="${stem}.py"
+
+cat<<EOF
+<small>_This file is part of LEANER. To know more, view the source code [$src](../src/$src) or read our [home]($url) page._</small>
+EOF
+cat $1 |
+awk --source '
+BEGIN { First = 1
+        In = 1}
+/^"""</,/^>"""/ { next }
+/^"""/ { In = 1 - In
+         if (In) 
+	     print "````python"
+         else
+	     if (First)
+               First = 0
+             else
+               print "````"
+         next
+       }
+! First { print $0 }
+END { if (In) print "````" }
+' 
