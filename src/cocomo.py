@@ -86,7 +86,7 @@ In  there any any uncertainties about that project then either:
 + The project description does not mention that item;
 + Or, that item is shown as a range of possible values.
 
-```
+```python
 @ok # all functions defining projects have the prefix "@ok"
 def flight():
   "JPL Flight systems"
@@ -121,7 +121,7 @@ The planned change to the project.
 For example, lets say someone decide to "treat" a project by
 improving personnel.
 
-```
+```python
 def improvePersonnel(): return dict(
   acap=[5],pcap=[5],pcon=[5], aexp=[5], pexp=[5], ltex=[5])
 ```
@@ -428,7 +428,7 @@ In the  following code:
 + The guesses from the project are then added to  `ask` which
   pulls on value for each attribute.
 
-```
+```python
 def ask(x):
   return random.choice(list(x))
 ```
@@ -456,7 +456,7 @@ For example, here some code to generate projects that are consistent
 with what we know about `flight` projects. Note that we call it three
 times and get three different project:
 
-```
+python
 >>> for _ in range(3):
       print("\n",complete(flight))
 
@@ -507,7 +507,7 @@ def sample(samples=1000,
 
 For example:
 
-```
+```python
 >>> sample(projects=[flight,anything])
 
 rank | rx                        | median  |                                                                             
@@ -518,7 +518,7 @@ rank | rx                        | median  |
 
 Here's code to try all our treatments on all our projects:
 
-```
+```python
 PROJECTS  = [flight,ground,osp,osp2,anything]
 TREATMENTS= [doNothing, improvePersonnel, improveToolsTechniquesPlatform,
              improvePrecendentnessDevelopmentFlexibility, 
