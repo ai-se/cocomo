@@ -126,13 +126,6 @@ as well as programmer continuity, experience with analysis, platform and this
 development langauge.)
  
 
-
- 
-
-## Ranges of Parameters
-
- 
-
 ## The COCOMO Equation.
 
 
@@ -216,7 +209,7 @@ Recall from the above those ranges are the intersection of
 
 How do we specify all those ranges? Well...
 
-### Finding Ranges(Base)
+### Finding "Ranges(Base)"
 
 To find _Ranges(Base)_, we ask the _Coc2tunings_ table to report
 all the non-None indexes it supports.
@@ -261,7 +254,7 @@ def ok(f):
 
 For an example of using this function, see below.
 
-### Finding Ranges(Project)
+### Defining "Ranges(Project)"
  
 In practice, we rarely know all the exact COCOMO factors for
 any project with 100% certainty. So the real game with effort
@@ -354,7 +347,7 @@ def anything():
   return ranges()
 """
 
-### Finding Ranges(Treatment)
+### Defining "Ranges(Treatment)"
 
 Lastly, we need to define what we are going to do to a project.
 
@@ -433,6 +426,8 @@ In the  following code:
 def ask(x):
   return random.choice(list(x))
 ```
+
+And here's the code:
 
 """
 def complete(project, rx=None, allRanges=ranges()):
