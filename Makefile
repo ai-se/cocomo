@@ -1,3 +1,4 @@
+what=cocomo
 url="https://github.com/ai-se/cocomo"
 py=$(shell cd src; ls *.py)
 md=doc/$(subst .md ,.md doc/,$(subst .py,.md,$(py)))
@@ -34,7 +35,7 @@ gitting:
 	git config credential.helper 'cache --timeout=3600'
 	
 doc/%.md : src/%.py
-	@bash etc/py2md $<  "$(url)" > $@
+	@bash etc/py2md $<  "$(url)" $(what) > $@
 	git add $@
 
 README.md : etc/readmeHeader etc/readmeFooter  $(md) etc/toc1.awk

@@ -1,4 +1,4 @@
-<small>_This file is part of LEANER. To know more, view the source code [lib.py](../src/lib.py) or read our [home](https://github.com/ai-se/cocomo) page._</small>
+<small>_This file is part of cocomo. To know more, view the source code [lib.py](../src/lib.py) or read our [home](https://github.com/ai-se/cocomo) page._</small>
 
 # General stuff
 

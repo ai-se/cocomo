@@ -2,12 +2,13 @@
 
 file="$1"
 url="$2"
+what="$3"""
 base=`basename $1`
 stem="${base%.*}"
 src="${stem}.py"
 
 cat<<EOF
-<small>_This file is part of LEANER. To know more, view the source code [$src](../src/$src) or read our [home]($url) page._</small>
+<small>_This file is part of ${3}. To know more, view the source code [$src](../src/$src) or read our [home]($url) page._</small>
 EOF
 cat $1 |
 awk --source '

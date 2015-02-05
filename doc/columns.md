@@ -1,4 +1,4 @@
-<small>_This file is part of LEANER. To know more, view the source code [columns.py](../src/columns.py) or read our [home](https://github.com/ai-se/cocomo) page._</small>
+<small>_This file is part of cocomo. To know more, view the source code [columns.py](../src/columns.py) or read our [home](https://github.com/ai-se/cocomo) page._</small>
 
 # Handling Columns of Data
 
