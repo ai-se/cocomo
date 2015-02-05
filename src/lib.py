@@ -92,7 +92,6 @@ Return all pairs of items i,i+1 from a list.
 
 """
 def pairs(lst):
-
   last=lst[0]
   for i in lst[1:]:
     yield last,i

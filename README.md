@@ -5,6 +5,8 @@ with respect to the stability of those decisions.
 
 ## Contents
 
++ [badSmells](doc/badSmells.md):  Test Cases for COCOMO
++ [badSmellseg](doc/badSmellseg.md):  Test Cases for COCOMO
 + [boot](doc/boot.md):  Boot code: stuff needed before anything else
 + [cocomo](doc/cocomo.md):  Core COCOMO Utilities
 + [cocomoeg](doc/cocomoeg.md):  Test Cases for COCOMO
@@ -12,6 +14,7 @@ with respect to the stability of those decisions.
 + [columns](doc/columns.md):  Handling Columns of Data
 + [lib](doc/lib.md):  General stuff
 + [libeg](doc/libeg.md):  Examples of Running Lib.py
++ [optimize](doc/optimize.md):  Optimization : not done yeat
 
 ## Installation
 

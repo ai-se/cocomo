@@ -6,18 +6,32 @@ From the Boehm'00 book [Software Cost Estimation with Cocomo II][boehm00].
 
 [boehm00]: http://goo.gl/kJE87M "Barry W. Boehm, Clark, Horowitz, Brown, Reifer, Chulani, Ray Madachy, and Bert Steece. 2000. Software Cost Estimation with Cocomo II (1st ed.). Prentice Hall"
 
+
+The `COCOMO2` code uses the following set of tunings
+that Boehm learned, sort of, from 161 projects from
+commercial, aerospace, government, and non-profit
+organizations-- mostly from the period 1990 to 2000
+(I saw "sort of" cause Boehm actually "fiddled" with
+these numbers, here and there, using his domain
+knowledge).
+
+
 ## Overview
 
 Q: What does this code do?  
-A: It extracts valid projects from ranges.
-       + The intersction of   
-              + Ranges(Base): the background COCOMO ranges
-              + Ranges(Project): the legal values for a project
-              + Ranges(Treatment): the planned changes for a project
+A: It extracts valid projects from ranges describing:
+    + Valid COCOMO ranges (a.k.a. _Ranges(Base)_);
+    + The space of options within one project (a.k.a _Ranges(Project)_);
+    + The suggested changes to that project (a.k.a. Ranges(Treatment)_);
+    
+The _intersection_ of that that space is the _result_ of changing a project
+and our goal is to use that tool to find better changes to a project.
+       
+## Example
 
-E.g. **Ranges(Base):**
+### E.g. Ranges(Base) ###
 
-+ The space of legal values for a COCOMO project. That looks like this:
+The space of legal values for a COCOMO project. That looks like this:
 
 ````python
 _ = None;  Coc2tunings = dict(
@@ -46,9 +60,21 @@ _ = None;  Coc2tunings = dict(
   tool=[        1.17, 1.09, 1.00, 0.90, 0.78,    _]) 
 ````
 
-E.g. **Ranges(Project):**
+For this code:
 
-+ The space of legal values for a project.
++ We use 1=v1ow, 2=low, 3=nom, 4=high, 5=vhigh, 6-xhigh.
++ The first few variables decrease effort exponentially.
++ To distinguish those _scale factors_ from the rest of the code, we  start
+  them with an upper case letter.
+
+### E.g. Ranges(Project) ###
+
+The space of legal values for a project.
+
+In  there any any uncertainties about that project then either:
+
++ The project description does not mention that item;
++ Or, that item is shown as a range of possible values.
 
 ```
 @ok # all functions defining projects have the prefix "@ok"
@@ -66,25 +92,23 @@ def flight():
     tool = [2])       
 ```
 
-+ If there any any uncertainties about that project then:
-      + The project description does not mention that item;
-      + Or, that item is shown as a range of possible values.
-      + This all looks like the following.
-            + This is a decription of flight software from NASA's 
+This is a decription of flight software from NASA's 
               Jet Propulsion lab.
-            + Some things are known with certainity; e.g. 
++ Some things are known with certainity; e.g. 
               this team makes very little use of _tools_.
-                 + Hence, _tool = [2]_ has only one value
-            + Many things are uncertain so:
-                 + We do not mention "team cohesion" (a.k.a. _team_)
+    + Hence, _tool = [2]_ has only one value
++ Many things are uncertain so:
+    + We do not mention "team cohesion" (a.k.a. _team_)
                    so this can range very log to very high
-                 + We offer some things are ranges (e.g. _kloc_
+    + We offer some things are ranges (e.g. _kloc_
                    and "process maturity" _pmat_)
 
-E.g. **Ranges(treatment):** The planned change to the project.
+### E.g. Ranges(treatment)
 
-+ For example, lets say someone decide to "treat" a project by
-  improving personnel.
+The planned change to the project.
+
+For example, lets say someone decide to "treat" a project by
+improving personnel.
 
 ```
 def improvePersonnel(): return dict(
@@ -94,54 +118,15 @@ def improvePersonnel(): return dict(
 (Note that "improving personnel" is a sad euphism for sacking your current
 contractors and hiring new ones with maximum analyst and programming capability 
 as well as programmer continuity, experience with analysis, platform and this
-development langauge.
+development langauge.)
+ 
 
 
-+ Given _background_ knowledge on the legal ranges for model values;
-+ Given a partial description of a project 
-    + That may not mention all values;
-    + That may mention values not as points, but as ranges
-+ Sample the space of possible project
-+ Report _effort_ and _risk_ for each:
-    + _Effort_ = how long will it take to build;
-    + _Risk_ = number of "bad smells" for that project
-+ Present the result in a little report.
-
-
-
-
-
-
-### Internally...
-
-The core structure of this code is a dictionary
-whose keys describe COCOMO attributes.
-Look up the value of those keys in a array of tunings.
-
+ 
 
 ## Ranges of Parameters
 
-The `COCOMO2` code uses the following set of tunings
-that Boehm learned, sort of, from 161 projects from
-commercial, aerospace, government, and non-profit
-organizations-- mostly from the period 1990 to 2000
-(I saw "sort of" cause Boehm actually "fiddled" with
-these numbers, here and there, using his domain
-knowledge).
-
-Here are the actual tunings. The variables can range
-from very low to extremely high. 
-
-
-
-The left-hand-side terms define magic COCOMO parameters. They will
-explained below. For know, we just note that:
-
-+ The first few
-variables decrease effort exponentially.
-+ To
-distinguish those _scale factors_ from the rest of the code, we  start
-them with an upper case letter.
+ 
 
 ## The COCOMO Equation.
 
@@ -215,18 +200,21 @@ what code is being developed. The above factors divide into:
 + And the _misc_ scale factors: Prec, Flex, Resl, Team, Pmat.
 
 
+## Finding Ranges
 
-## Defining Legal Ranges
+We use the above to compute estimates for projects that have certain ranges.
+Recall from the above those ranges are the intersection of
 
-The above lets us define legal
-range for inputs to the COCOMO model. For example:
++ Valid COCOMO ranges (a.k.a. _Ranges(Base)_);
++ The space of options within one project (a.k.a _Ranges(Project)_);
++ The suggested changes to that project (a.k.a. Ranges(Treatment)_);
 
-+ For `tool`, those legal values are 1,2,3,4,5 (cause
-  the most-right-hand-side value is empty.
-+ For `site`, those legal values are 1,2,3,4,5,6. 
+How do we specify all those ranges? Well...
 
-We use this later as part of some routines to
-explore options with software projects.
+### Finding Ranges(Base)
+
+To find _Ranges(Base)_, we ask the _Coc2tunings_ table to report
+all the non-None indexes it supports.
 
 ````python
 def ranges(t=None):
@@ -237,17 +225,17 @@ def ranges(t=None):
   return out
 ````
 
-(Note that I slipped in the range of value `kloc` values
-into `ranges` (2 to 1000).)
+Two little details
 
-Using `ranges`, we can do a little defensive programming.
-Suppose a function describes a project by return a dictionary
-whose keys are meant to be valid COCOMO variables and whose
-values are meant to be numbers for legal COCOMO ranges.
-The following decorator calls that function at load time
-and compile time and checks that all its keys and
-values are valid. For an example of its usage, see below
-(the functions describing JPL projects).
++ Note one cheat:  I slipped in the range of value `kloc` values
+  into `ranges` (2 to 1000).
++ Using `ranges`, we can do a little defensive programming.
+    + Suppose a function describes a project by return a dictionary
+      whose keys are meant to be valid COCOMO variables and whose
+      values are meant to be numbers for legal COCOMO ranges.
+    + The following decorator calls that function at load time
+      and compile time and checks that all its keys and
+      values are valid.  
 
 ````python
 def ok(f):
@@ -266,8 +254,10 @@ def ok(f):
   return f
 ````
 
-## Handling Uncertainty
+For an example of using this function, see below.
 
+### Finding Ranges(Project)
+ 
 In practice, we rarely know all the exact COCOMO factors for
 any project with 100% certainty. So the real game with effort
 estimation is study estimates across a _space of possibilities_.
@@ -281,8 +271,10 @@ other variables are really  _ranges_ of values
 representing the space of options within certain software being built
 at NASA.
 
-````python
+Note the addition of _@ok_ before each function. This means, at load time,
+we check that all the following variables and ranges are valid.
 
+````python
 @ok
 def flight():
   "JPL Flight systems"
@@ -357,411 +349,24 @@ def anything():
   return ranges()
 ````
 
-### Complete-ing
+### Finding Ranges(Treatment)
 
-Note that some of these descriptions are more detailed than others.
-For example:
+Lastly, we need to define what we are going to do to a project.
 
-+  For _flight systems_, we just do not know the range of
-   possibilities for (e.g.) _site_. 
-+  For the  last function (`anything`), nothing is mentioned at all
-   so an `anything` project samples across the entire range 
-   of everything.
-
-To complete these partial descriptions, we need to _complete_ them.
-Any value missing from these
-descriptions is assumed to range over its full range (min to max).
-The following code:
-
-+ `ranges()` looks up the ranges for `all` COCOMO values 
-+ `project()` makes some `decisions` by selecting one value
-   for each range of a particular project.
-+ `guess()` replaces a range with one value, picked at random
-+ The guesses from the project are then added to  `all`.
+First, we define a little booking code that remembers all the 
+treatments and, at load time, checks that the ranges are good.
 
 ````python
-def complete(project, rx=None, allRanges=ranges()):
-  rx = rx or {}
-  p = project()
-  for k,default in allRanges.items():
-    if not k in p:
-      p[k] = default
-  for k,rx1 in rx.items():
-    if k == 'nkloc':
-        p['kloc'] = [ ask(p['kloc']) * rx1[0] ] 
-    else:
-      overlap = list(set(p[k]) & set(rx1))
-      if overlap:
-        p[k] = overlap
-  return  {k: ask(x) for k,x in p.items()}
-````
-
-
-For example, here some code to generate projects that are consistent
-with what we know about `flight` projects:
-
-```
-all,_ = complete(flight)
-for k,v in all.items():
-       print("\t",k,v)
-
- 	 Flex 3
-	 Pmat 2
-	 Prec 3
-	 Resl 2
-	 Team 5
-	 acap 4
-	 aexp 3
-	 cplx 6
-	 data 3
-	 docu 3
-	 kloc 385
-	 ltex 3
-	 pcap 4
-	 pcon 4
-	 pexp 3
-	 pvol 4
-	 rely 3
-	 ruse 3
-	 site 6
-	 stor 3
-	 time 4
-	 tool 2
-    sced 3
-```
-
-## Putting It All Together
-
-Using the above, we can generate (say) 1000 projects at random
-that conform to the constraints of `fight`, `ground`, `osp`, `osp2`
-and study their effort estimates.
-
-The generated distributions are as follows. Note that the anything/osp2
-projects have the largest/smallest ranges since they have the least/most
-constraints.
-
-```
-                                               min  25-th  50-th  75-th  max
-                                             =====  =====  =====  =====  ====
- anything, (--    *  ------|------------- ),    7,  3778,  8716, 13892, 41697
-   flight, (- *---         |              ),   32,  1433,  2888,  4721,  9729
-   ground, ( *----         |              ),   57,  1051,  2387,  3975,  8665
-      osp, (*              |              ),  718,  1092,  1294,  1521,  2146
-     osp2, (*              |              ),  515,   683,   816,   924,  1151
-```
-
-In the effort estimation literature, it is usual to
-report the 50 to 75th percentile as the estimate.
-
-## Bad Smells
-
-The concept of a _bad smell_ has been widely
-discussed by [Fowler and Beck][fowler99], [Fontana
-et al.][fontana12], and [others][codesmell]. Such
-_bad smells_ are an indicator of problems within a
-software project.  They are characteristics
-of projects that may indicate a problem that makes
-software hard to evolve and maintain, may trigger
-refactoring of code, or delivering code late and
-over budget.
-
-More generally, in software engineering, bad smells
-are any symptom in a program that possibly indicates
-a deeper problem.  Such bad smells may not always
-come from actual problems.  Instead, they indicate
-some weakness in some aspect of the project that may
-be slowing down development or increasing the risk
-of bugs or failures in the future.
-
-
-[fowler99]: http://v.gd/QglBdv  "Fowler, M. and K. Beck, Refactoring: improving the design of existing code . 1999: Addison Wesley Professional."
-
-[fontana12]: http://www.jot.fm/issues/issue_2012_08/article5.pdf "Fontana, F.A. and Braione, P. and Zanoni, M. Automatic detection of bad smells in code: An experimental assessment Journal of Object Technology, Vol.11 No.2, 2012."
-
-[codesmell]: http://en.wikipedia.org/wiki/Code_smell "Web Reference for code smell"
-
-[Madachy and his students][madachy97] have worked
-through combinations of COCOMO parameters to offer a
-_bad smell_ detector for software projects.
-For example, here is a bad smell:
-
-+ The schedule is tight ;
-+ And we are building very complex software;  
-+ Or we are building software that runs in tight execution time constraints,
-
-That is modeled the first table shown below. Tight
-schedule means the first few rows of `sced` and
-(e.g.) high complexity are the right-hand side
-columns of `cplx`:
-
-[madachy97]: http://v.gd/zyX09Q  "Raymond J. Madachy, Heuristic Risk Assessment Using Cost Factors, IEEE Software, vol. 14, no. 3, pp. 51-59, May/June, 1997"
-
-````python
-
-Stink={}
-
-Stink[('sced','cplx')] = Stink[('sced','time')] = [
- [0,0,0,1,2,4],
- [0,0,0,0,1,2],
- [0,0,0,0,0,1],
- [0,0,0,0,0,0],
- [0,0,0,0,0,0],
- [0,0,0,0,0,0]]
-
-````
-
-The rest of the tables have the same form:  there is one corner of the table where the stink is worse (rises to "2"). And if the stink is really bad, the
-smell goes up to "4". Note that these numbers are not precise values; rather they are qualitative indicators of subjective human opinion. But see if
-you disagree with any of the following:
-
-````python
-
-Stink[('sced','rely')] =  Stink[('sced','pvol')] = [
- [0,0,0,1,2,0],
- [0,0,0,0,1,0],
- [0,0,0,0,0,0],
- [0,0,0,0,0,0],
- [0,0,0,0,0,0],
- [0,0,0,0,0,0]]
-
-Stink[('ltex','pcap')] = Stink[('sced','acap')] = \
-Stink[('sced','pexp')] = Stink[('sced','pcap')] = \
-Stink[('sced','aexp')] = [
- [4,2,1,0,0,0],
- [2,1,0,0,0,0],
- [1,0,0,0,0,0],
- [0,0,0,0,0,0],
- [0,0,0,0,0,0],
- [0,0,0,0,0,0]]
-
-Stink[('sced','tool')] = Stink[('sced','ltex')] = \
-Stink[('sced','Pmat')] = Stink[('Pmat','acap')] = \
-Stink[('tool','acap')] = Stink[('tool','pcap')] = \
-Stink[('tool','Pmat')] = Stink[('Team','aexp')] = \
-Stink[('Team','sced')] = Stink[('Team','site')] = [
- [2,1,0,0,0,0],
- [1,0,0,0,0,0],
- [0,0,0,0,0,0],
- [0,0,0,0,0,0],
- [0,0,0,0,0,0],
- [0,0,0,0,0,0]]
-
-Stink[('rely','acap')] = Stink[('rely','Pmat')] = \
-Stink[('rely','pcap')] = [
- [0,0,0,0,0,0],
- [0,0,0,0,0,0],
- [1,0,0,0,0,0],
- [2,1,0,0,0,0],
- [4,2,1,0,0,0],
- [0,0,0,0,0,0]]
-
-Stink[('cplx','acap')] = Stink[('cplx','pcap')] = \
-Stink[('cplx','tool')] = Stink[('stor','acap')] = \
-Stink[('time','acap')] = Stink[('ruse','aexp')] = \
-Stink[('ruse','ltex')] = Stink[('Pmat','pcap')] = \
-Stink[('stor','pcap')] = Stink[('time','pcap')] = [
- [0,0,0,0,0,0],
- [0,0,0,0,0,0],
- [0,0,0,0,0,0],
- [1,0,0,0,0,0],
- [2,1,0,0,0,0],
- [4,2,1,0,0,0]]
-
-Stink[('pvol','pexp')] = [
- [0,0,0,0,0,0],
- [0,0,0,0,0,0],
- [0,0,0,0,0,0],
- [1,0,0,0,0,0],
- [2,1,0,0,0,0],
- [0,0,0,0,0,0]]
-
-Stink[('time','tool')] = [
-  [0,0,0,0,0,0],
-  [0,0,0,0,0,0],
-  [0,0,0,0,0,0],
-  [0,0,0,0,0,0],
-  [1,0,0,0,0,0],
-  [2,1,0,0,0,0]]
-
-````
-
-Using these `Stink` tables, we can check how bad our
-projects smell.
-
-````python
-
-def badSmell(project,log=None):
-  stink = 0
-  for (x1,x2),m in Stink.items():
-      v1     = project[x1] 
-      v2     = project[x2]
-      inc    = m[v1 - 1][v2 - 2]
-      if inc and not log is None:
-         key = (x1,v1,x2,v2)
-         log[key] = log.get(key,0) + inc 
-      stink += inc
-  return stink
-
-````
-
-Here's the bad smells seen in 1000 randomly generated projects. Note that
-`osp` really stinks.
-
-```
-      osp, (    -------   *|  ----------  ),    8,    19,    25,    32,    49
- anything, (--   *  -------|-------       ),    0,     5,     9,    15,    40
-   flight, (--  * ------   |              ),    0,     5,     8,    11,    22
-     osp2, (  *-           |              ),    4,     4,     5,     6,     8
-   ground, (- *--------    |              ),    0,     2,     4,     6,    20
-```
-
-To see why, we  collected 1000 samples from `osp` and looked at the 
-dozen worst  offenders.
-
-````python
-def whatStinks(project,n=1000,rx=None):
-  log = {}
-  for _ in xrange(n):
-    settings = complete(project,rx or {})
-    badSmell(settings,log)
-  lst = sorted([(v,k) for k,v in log.items()],
-                reverse=True)
-  return lst[:12]
-````
-
-The results showed that, with `osp`, there are many
-times we are trying to build highly reliable or
-highly complex software using lower-end developers.
-
-```
-stink = 2.13 when rely = 5 and acap = 2
-stink = 2.00 when rely = 5 and pcap = 3
-stink = 1.08 when cplx = 6 and acap = 2
-stink = 1.05 when rely = 5 and Pmat = 2
-stink = 0.99 when cplx = 6 and pcap = 3
-stink = 0.94 when rely = 5 and acap = 3
-stink = 0.89 when cplx = 6 and tool = 2
-stink = 0.71 when sced = 1 and acap = 2
-stink = 0.65 when sced = 1 and aexp = 2
-stink = 0.65 when sced = 1 and pexp = 3
-stink = 0.65 when sced = 1 and pcap = 3
-stink = 0.54 when cplx = 6 and tool = 3
-```
-Another problem, that appears four times at the end of the list,
-is that we are rushing to complete the project using lower-end developers.
-
-## What to Do?
-
-So now we know that if we specify the range of possibilities in a project,
-and sample across that range, that projects can have widely varying
-estimates and, sometimes, can really smell really bad.
-
-What to do? How to find project settings that let us deliver most code,
-with least effort, while incurring fewest smells? Formally this is an 
-_optimization_ problem of the form _(decisions,objectives)_ where
-
-+ _Decisions_ are some values selected from the ranges of 
-  of our projects (e.g. `flight`, `ground`, `osp`, etc);
-+ The _objectives_ are to minimize _effort_, _badSmells_ while
-  maximizing _kloc_
-
-To guide this search we will run our projects 1000 times and then
-(to make a level playing field), normalize all the efforts, badSmells
-and kloc to 0..1 for min to max. Then we will score each project with a formula
-that gets _better_ the further we move from the worst case
-scenario of _(kloc,badSmells,effort) = (0,1,1)_. For that,
-we will add _kloc_ to a _likes_ list and _badSmells,effort_
-to a _dislikes_ list:
-
-```
-def fromHell(goods,bads):
-    n, all = 0, 0
-    for v in goods:
-      n   += 1
-      all += (0 - v)**2
-    for v in bads:
-      n   += 1
-      all += (1 - v)**2
-    return all**0.5 / n**5
-```
-
-(We divide by the square root of the number of
-dimensions, just for convenience-- the resulting
-score will be bounded 0 to 1 for worst to best.)
-
-Lastly, we divide our results into the  _best_
-top-half scores and the _rest_ then look for decisions
-that are more common in _best_ than _rest_.
-
-````python
-def eval1(settings):
-  est   = COCOMO2(settings)
-  smell = badSmell(settings)
-  kloc  = settings["kloc"]
-  return [kloc],[est,smell]
-  
-def run1(project, rx=None):
-  settings,decisions = complete(project,rx)  
-  good,bad = eval1(settings)
-  del  decisions["kloc"]
-  return o(decisions = decisions,
-              good   = good,
-              bad    = bad)
-
-def run(project, n=1000, enough=0.33):
-  print("")
-  baseline = [ run1(project) for _ in xrange(n) ]
-  report(baseline, project.__name__+"(baseline)",['kloc'], ['effort','smell'])
-  policies = bore(baseline,enough=enough)
-  todo=[]
-  print(len(policies))
-  for _,(k,v) in policies:
-    todo += [(k,v)]
-    p  = {k1:v1 for k1,v1 in todo}
-    rx = [ run1(project,p) for _ in xrange(n) ]
-    report(rx, 
-           project.__name__+'('+str(len(todo)) +')'+(str((k,v))),
-           ['kloc'], ['effort','smell'])
-
-def des(project,n=40,cf=0.3,f=0.5):
-  def complete1(one):
-    tmp = guess(ranges(),one)  
-    return eval1(tmp)
-  pop     =  [ run1(project) for _ in xrange(n*20) ]
-  print(pop[0].decisions.keys())
-  good,bad = ['kloc'],['effort','smell']
-  report(pop, project.__name__+"(baseline)", good,bad)
-  for generation in range(n):
-    pop,log = de(pop,score=complete1,cf=cf,f=f)
-    if generation % 5 == 0:
-      report(pop, project.__name__+"("+str(generation+1)+")", good,bad)
-  
-def report(log,what,goodis,badis):
-  bads  = [N() for _ in log[0].bad]
-  goods = [N() for _ in log[0].good]
-  for one in log:
-    for n,v in enumerate(one.bad):
-      bads[n].tell(v)
-    for n,v in enumerate(one.good):
-      goods[n].tell(v)
-  out=[what]
-  for x,v in zip(badis,bads)  : 
-    out += [x]
-    q2,q3 = v.q2q3()
-    out += g([q2,q3],n=0)
-  for x,v in zip(goodis,goods): 
-    out += [x]
-    q2,q3 = v.q2q3()
-    out += g([q2,q3],n=0)
-  print(out)
-
 def rx(f=None,all=[]):
-  if not f: 
-    return all
-  else:
-    all += [f]
-    return ok(f) 
-    
+  if not f: return all
+  all += [f]
+  return ok(f) 
+````
+
+Ok, now that is done, here are the treatments. Note that they all start
+with _@rx_. 
+
+````python
 @rx
 def doNothing(): return {}
 
@@ -800,150 +405,205 @@ def improveTeam(): return dict(
 @rx
 def reduceQuality():  return dict(
   rely = [1], docu=[1], time = [3], cplx = [1])
-           
-def COCONUT(training,          # list of projects
-            a=10, b=1,         # initial  (a,b) guess
-            deltaA    = 10,    # range of "a" guesses 
-            deltaB    = 0.5,   # range of "b" guesses
-            depth     = 10,    # max recursive calls
-            constricting=0.66):# next time,guess less
-  if depth > 0:
-    useful,a1,b1= GUESSES(training,a,b,deltaA,deltaB)
-    if useful: # only continue if something useful
-      return COCONUT(training, 
-                     a1, b1,  # our new next guess
-                     deltaA * constricting,
-                     deltaB * constricting,
-                     depth - 1)
-  return a,b
+````
 
-def GUESSES(training, a,b, deltaA, deltaB,
-           repeats=20): # number of guesses
-  useful, a1,b1,least,n = False, a,b, 10**32, 0
-  while n < repeats:
-    n += 1
-    aGuess = a1 - deltaA + 2 * deltaA * rand()
-    bGuess = b1 - deltaB + 2 * deltaB * rand()
-    error  = ASSESS(training, aGuess, bGuess)
-    if error < least: # found a new best guess
-      useful,a1,b1,least = True,aGuess,bGuess,error
-  return useful,a1,b1
+### Under the Hood: Complete-ing the Ranges.
 
-def ASSESS(training, aGuess, bGuess):
-   error = 0.0
-   for project in training: # find error on training
-     predicted = COCOMO2(project, aGuess, bGuess)
-     actual    = effort(project)
-     error    += abs(predicted - actual) / actual
-   return error / len(training) # mean training error
+Now that we have defined _Ranges(Base), Ranges(Project), and
+Ranges(Treatment)_, we need some tool to generate the ranges
+of the currnet project, given some treatment. 
+In the  following code:
 
-def nasa93():
-  vl=1;l=2;n=3;h=4;vh=5;xh=6
-  return dict(
-    sfem=21,
-    kloc=22,
-    effort=23,
-    names= [ 
-     # 0..8
-     'Prec', 'Flex', 'Resl', 'Team', 'Pmat', 'rely', 'data', 'cplx', 'ruse',
-     # 9 .. 17
-     'docu', 'time', 'stor', 'pvol', 'acap', 'pcap', 'pcon', 'aexp', 'plex',  
-     # 18 .. 25
-     'ltex', 'tool', 'site', 'sced', 'kloc', 'effort', '?defects', '?months'],
-    projects=[
-	[h,h,h,vh,h,h,l,h,n,n,n,n,l,n,n,n,n,n,h,n,n,l,25.9,117.6,808,15.3],
-	[h,h,h,vh,h,h,l,h,n,n,n,n,l,n,n,n,n,n,h,n,n,l,24.6,117.6,767,15.0],
-	[h,h,h,vh,h,h,l,h,n,n,n,n,l,n,n,n,n,n,h,n,n,l,7.7,31.2,240,10.1],
-	[h,h,h,vh,h,h,l,h,n,n,n,n,l,n,n,n,n,n,h,n,n,l,8.2,36,256,10.4],
-	[h,h,h,vh,h,h,l,h,n,n,n,n,l,n,n,n,n,n,h,n,n,l,9.7,25.2,302,11.0],
-	[h,h,h,vh,h,h,l,h,n,n,n,n,l,n,n,n,n,n,h,n,n,l,2.2,8.4,69,6.6],
-	[h,h,h,vh,h,h,l,h,n,n,n,n,l,n,n,n,n,n,h,n,n,l,3.5,10.8,109,7.8],
-	[h,h,h,vh,h,h,l,h,n,n,n,n,l,n,n,n,n,n,h,n,n,l,66.6,352.8,2077,21.0],
-	[h,h,h,vh,h,h,l,h,n,n,xh,xh,l,h,h,n,h,n,h,h,n,n,7.5,72,226,13.6],
-	[h,h,h,vh,n,n,l,h,n,n,n,n,l,h,vh,n,vh,n,h,n,n,n,20,72,566,14.4],
-	[h,h,h,vh,n,n,l,h,n,n,n,n,l,h,h,n,vh,n,h,n,n,n,6,24,188,9.9],
-	[h,h,h,vh,n,n,l,h,n,n,n,n,l,h,vh,n,vh,n,h,n,n,n,100,360,2832,25.2],
-	[h,h,h,vh,n,n,l,h,n,n,n,n,l,h,n,n,vh,n,l,n,n,n,11.3,36,456,12.8],
-	[h,h,h,vh,n,n,l,h,n,n,n,n,h,h,h,n,h,l,vl,n,n,n,100,215,5434,30.1],
-	[h,h,h,vh,n,n,l,h,n,n,n,n,l,h,h,n,vh,n,h,n,n,n,20,48,626,15.1],
-	[h,h,h,vh,n,n,l,h,n,n,n,n,l,h,n,n,n,n,vl,n,n,n,100,360,4342,28.0],
-	[h,h,h,vh,n,n,l,h,n,n,n,xh,l,h,vh,n,vh,n,h,n,n,n,150,324,4868,32.5],
-	[h,h,h,vh,n,n,l,h,n,n,n,n,l,h,h,n,h,n,h,n,n,n,31.5,60,986,17.6],
-	[h,h,h,vh,n,n,l,h,n,n,n,n,l,h,h,n,vh,n,h,n,n,n,15,48,470,13.6],
-	[h,h,h,vh,n,n,l,h,n,n,n,xh,l,h,n,n,h,n,h,n,n,n,32.5,60,1276,20.8],
-	[h,h,h,vh,h,h,l,h,n,n,n,n,l,n,n,n,n,n,h,n,n,l,19.7,60,614,13.9],
-	[h,h,h,vh,h,h,l,h,n,n,n,n,l,n,n,n,n,n,h,n,n,l,66.6,300,2077,21.0],
-	[h,h,h,vh,h,h,l,h,n,n,n,n,l,n,n,n,n,n,h,n,n,l,29.5,120,920,16.0],
-	[h,h,h,vh,n,h,n,n,n,n,h,n,n,n,h,n,h,n,n,n,n,n,15,90,575,15.2],
-	[h,h,h,vh,n,h,n,h,n,n,n,n,n,n,h,n,h,n,n,n,n,n,38,210,1553,21.3],
-	[h,h,h,vh,n,n,n,n,n,n,n,n,n,n,h,n,h,n,n,n,n,n,10,48,427,12.4],
-	[h,h,h,vh,h,n,vh,h,n,n,vh,vh,l,vh,n,n,h,l,h,n,n,l,15.4,70,765,14.5],
-	[h,h,h,vh,h,n,vh,h,n,n,vh,vh,l,vh,n,n,h,l,h,n,n,l,48.5,239,2409,21.4],
-	[h,h,h,vh,h,n,vh,h,n,n,vh,vh,l,vh,n,n,h,l,h,n,n,l,16.3,82,810,14.8],
-	[h,h,h,vh,h,n,vh,h,n,n,vh,vh,l,vh,n,n,h,l,h,n,n,l,12.8,62,636,13.6],
-	[h,h,h,vh,h,n,vh,h,n,n,vh,vh,l,vh,n,n,h,l,h,n,n,l,32.6,170,1619,18.7],
-	[h,h,h,vh,h,n,vh,h,n,n,vh,vh,l,vh,n,n,h,l,h,n,n,l,35.5,192,1763,19.3],
-	[h,h,h,vh,h,h,l,h,n,n,n,n,l,n,n,n,n,n,h,n,n,l,5.5,18,172,9.1],
-	[h,h,h,vh,h,h,l,h,n,n,n,n,l,n,n,n,n,n,h,n,n,l,10.4,50,324,11.2],
-	[h,h,h,vh,h,h,l,h,n,n,n,n,l,n,n,n,n,n,h,n,n,l,14,60,437,12.4],
-	[h,h,h,vh,n,h,n,h,n,n,n,n,n,n,n,n,n,n,n,n,n,n,6.5,42,290,12.0],
-	[h,h,h,vh,n,n,n,h,n,n,n,n,n,n,n,n,n,n,n,n,n,n,13,60,683,14.8],
-	[h,h,h,vh,h,n,n,h,n,n,n,n,n,n,h,n,n,n,h,h,n,n,90,444,3343,26.7],
-	[h,h,h,vh,n,n,n,h,n,n,n,n,n,n,n,n,n,n,n,n,n,n,8,42,420,12.5],
-	[h,h,h,vh,n,n,n,h,n,n,h,n,n,n,n,n,n,n,n,n,n,n,16,114,887,16.4],
-	[h,h,h,vh,h,n,h,h,n,n,vh,h,l,h,h,n,n,l,h,n,n,l,177.9,1248,7998,31.5],
-	[h,h,h,vh,h,h,l,h,n,n,n,n,l,n,h,n,n,n,n,n,n,n,302,2400,8543,38.4],
-	[h,h,h,vh,h,n,h,l,n,n,n,n,h,h,n,n,h,n,n,h,n,n,282.1,1368,9820,37.3],
-	[h,h,h,vh,h,h,h,l,n,n,n,n,n,h,n,n,h,n,n,n,n,n,284.7,973,8518,38.1],
-	[h,h,h,vh,n,h,h,n,n,n,n,n,l,n,h,n,h,n,h,n,n,n,79,400,2327,26.9],
-	[h,h,h,vh,l,l,n,n,n,n,n,n,l,h,vh,n,h,n,h,n,n,n,423,2400,18447,41.9],
-	[h,h,h,vh,h,n,n,n,n,n,n,n,l,h,vh,n,vh,l,h,n,n,n,190,420,5092,30.3],
-	[h,h,h,vh,h,n,n,h,n,n,n,h,n,h,n,n,h,n,h,n,n,n,47.5,252,2007,22.3],
-	[h,h,h,vh,l,vh,n,xh,n,n,h,h,l,n,n,n,h,n,n,h,n,n,21,107,1058,21.3],
-	[h,h,h,vh,l,n,h,h,n,n,vh,n,n,h,h,n,h,n,h,n,n,n,78,571.4,4815,30.5],
-	[h,h,h,vh,l,n,h,h,n,n,vh,n,n,h,h,n,h,n,h,n,n,n,11.4,98.8,704,15.5],
-	[h,h,h,vh,l,n,h,h,n,n,vh,n,n,h,h,n,h,n,h,n,n,n,19.3,155,1191,18.6],
-	[h,h,h,vh,l,h,n,vh,n,n,h,h,l,h,n,n,n,h,h,n,n,n,101,750,4840,32.4],
-	[h,h,h,vh,l,h,n,h,n,n,h,h,l,n,n,n,h,n,n,n,n,n,219,2120,11761,42.8],
-	[h,h,h,vh,l,h,n,h,n,n,h,h,l,n,n,n,h,n,n,n,n,n,50,370,2685,25.4],
-	[h,h,h,vh,h,vh,h,h,n,n,vh,vh,n,vh,vh,n,vh,n,h,h,n,l,227,1181,6293,33.8],
-	[h,h,h,vh,h,n,h,vh,n,n,n,n,l,h,vh,n,n,l,n,n,n,l,70,278,2950,20.2],
-	[h,h,h,vh,h,h,l,h,n,n,n,n,l,n,n,n,n,n,h,n,n,l,0.9,8.4,28,4.9],
-	[h,h,h,vh,l,vh,l,xh,n,n,xh,vh,l,h,h,n,vh,vl,h,n,n,n,980,4560,50961,96.4],
-	[h,h,h,vh,n,n,l,h,n,n,n,n,l,vh,vh,n,n,h,h,n,n,n,350,720,8547,35.7],
-	[h,h,h,vh,h,h,n,xh,n,n,h,h,l,h,n,n,n,h,h,h,n,n,70,458,2404,27.5],
-	[h,h,h,vh,h,h,n,xh,n,n,h,h,l,h,n,n,n,h,h,h,n,n,271,2460,9308,43.4],
-	[h,h,h,vh,n,n,n,n,n,n,n,n,l,h,h,n,h,n,h,n,n,n,90,162,2743,25.0],
-	[h,h,h,vh,n,n,n,n,n,n,n,n,l,h,h,n,h,n,h,n,n,n,40,150,1219,18.9],
-	[h,h,h,vh,n,h,n,h,n,n,h,n,l,h,h,n,h,n,h,n,n,n,137,636,4210,32.2],
-	[h,h,h,vh,n,h,n,h,n,n,h,n,h,h,h,n,h,n,h,n,n,n,150,882,5848,36.2],
-	[h,h,h,vh,n,vh,n,h,n,n,h,n,l,h,h,n,h,n,h,n,n,n,339,444,8477,45.9],
-	[h,h,h,vh,n,l,h,l,n,n,n,n,h,h,h,n,h,n,h,n,n,n,240,192,10313,37.1],
-	[h,h,h,vh,l,h,n,h,n,n,n,vh,l,h,h,n,h,h,h,n,n,l,144,576,6129,28.8],
-	[h,h,h,vh,l,n,l,n,n,n,n,vh,l,h,h,n,h,h,h,n,n,l,151,432,6136,26.2],
-	[h,h,h,vh,l,n,l,h,n,n,n,vh,l,h,h,n,h,h,h,n,n,l,34,72,1555,16.2],
-	[h,h,h,vh,l,n,n,h,n,n,n,vh,l,h,h,n,h,h,h,n,n,l,98,300,4907,24.4],
-	[h,h,h,vh,l,n,n,h,n,n,n,vh,l,h,h,n,h,h,h,n,n,l,85,300,4256,23.2],
-	[h,h,h,vh,l,n,l,n,n,n,n,vh,l,h,h,n,h,h,h,n,n,l,20,240,813,12.8],
-	[h,h,h,vh,l,n,l,n,n,n,n,vh,l,h,h,n,h,h,h,n,n,l,111,600,4511,23.5],
-	[h,h,h,vh,l,h,vh,h,n,n,n,vh,l,h,h,n,h,h,h,n,n,l,162,756,7553,32.4],
-	[h,h,h,vh,l,h,h,vh,n,n,n,vh,l,h,h,n,h,h,h,n,n,l,352,1200,17597,42.9],
-	[h,h,h,vh,l,h,n,vh,n,n,n,vh,l,h,h,n,h,h,h,n,n,l,165,97,7867,31.5],
-	[h,h,h,vh,h,h,n,vh,n,n,h,h,l,h,n,n,n,h,h,n,n,n,60,409,2004,24.9],
-	[h,h,h,vh,h,h,n,vh,n,n,h,h,l,h,n,n,n,h,h,n,n,n,100,703,3340,29.6],
-	[h,h,h,vh,n,h,vh,vh,n,n,xh,xh,h,n,n,n,n,l,l,n,n,n,32,1350,2984,33.6],
-	[h,h,h,vh,h,h,h,h,n,n,vh,xh,h,h,h,n,h,h,h,n,n,n,53,480,2227,28.8],
-	[h,h,h,vh,h,h,l,vh,n,n,vh,xh,l,vh,vh,n,vh,vl,vl,h,n,n,41,599,1594,23.0],
-	[h,h,h,vh,h,h,l,vh,n,n,vh,xh,l,vh,vh,n,vh,vl,vl,h,n,n,24,430,933,19.2],
-	[h,h,h,vh,h,vh,h,vh,n,n,xh,xh,n,h,h,n,h,h,h,n,n,n,165,4178.2,6266,47.3],
-	[h,h,h,vh,h,vh,h,vh,n,n,xh,xh,n,h,h,n,h,h,h,n,n,n,65,1772.5,2468,34.5],
-	[h,h,h,vh,h,vh,h,vh,n,n,xh,xh,n,h,h,n,h,h,h,n,n,n,70,1645.9,2658,35.4],
-	[h,h,h,vh,h,vh,h,xh,n,n,xh,xh,n,h,h,n,h,h,h,n,n,n,50,1924.5,2102,34.2],
-	[h,h,h,vh,l,vh,l,vh,n,n,vh,xh,l,h,n,n,l,vl,l,h,n,n,7.25,648,406,15.6],
-	[h,h,h,vh,h,vh,h,vh,n,n,xh,xh,n,h,h,n,h,h,h,n,n,n,233,8211,8848,53.1],
-	[h,h,h,vh,n,h,n,vh,n,n,vh,vh,h,n,n,n,n,l,l,n,n,n,16.3,480,1253,21.5],
-	[h,h,h,vh,n,h,n,vh,n,n,vh,vh,h,n,n,n,n,l,l,n,n,n,  6.2, 12,477,15.4],
-	[h,h,h,vh,n,h,n,vh,n,n,vh,vh,h,n,n,n,n,l,l,n,n,n,  3.0, 38,231,12.0],
-	])
++ `ranges()` looks up the ranges for `all` COCOMO values; i.e. the _Ranges(Base)_
++ `project()` accesses _Ranges(Project)_. For each of those ranges, we
+  override _Ranges(Base)_.
++ Then we impose _Ranges(Treatment)_ to generate a list of valid ranges
+  consistent with _Ranges(*)_
++ Finally, we map those ranges over the _
++ `guess()` replaces a range with one value, picked at random
++ The guesses from the project are then added to  `ask` which
+  pulls on value for each attribute.
 
+```
+def ask(x):
+  return random.choice(list(x))
+```
+
+````python
+def complete(project, rx=None, allRanges=ranges()):
+  rx = rx or {}
+  p = project()
+  for k,default in allRanges.items():
+    if not k in p:
+      p[k] = default
+  for k,rx1 in rx.items():
+    if k == 'nkloc':
+        p['kloc'] = [ ask(p['kloc']) * rx1[0] ] 
+    else:
+      overlap = list(set(p[k]) & set(rx1))
+      if overlap:
+        p[k] = overlap
+  return  {k: ask(x) for k,x in p.items()}
+````
+ 
+For example, here some code to generate projects that are consistent
+with what we know about `flight` projects. Note that we call it three
+times and get three different project:
+
+```
+>>> for _ in range(3):
+      print("\n",complete(flight))
+
+==>
+ {'sced': 3, 'cplx': 5, 'site': 2, 'Prec': 3, 'Pmat': 3, 
+  'acap': 3, 'Flex': 3, 'rely': 5, 'data': 2, 'tool': 2, 
+  'pexp': 3, 'pcon': 1, 'aexp': 4, 'stor': 4, 'docu': 5, 
+  'Team': 5, 'pcap': 5, 'kloc': 41, 'ltex': 1, 'ruse': 6, 
+  'Resl': 2, 'time': 4, 'pvol': 3}
+
+ {'sced': 3, 'cplx': 6, 'site': 5, 'Prec': 4, 'Pmat': 2, 
+  'acap': 3, 'Flex': 2, 'rely': 5, 'data': 3, 'tool': 2, 
+  'pexp': 1, 'pcon': 2, 'aexp': 4, 'stor': 3, 'docu': 1, 
+  'Team': 3, 'pcap': 5, 'kloc': 63, 'ltex': 2, 'ruse': 3, 
+  'Resl': 4, 'time': 3, 'pvol': 3}
+
+ {'sced': 3, 'cplx': 5, 'site': 5, 'Prec': 4, 'Pmat': 2, 
+  'acap': 5, 'Flex': 5, 'rely': 3, 'data': 3, 'tool': 2, 
+   'pexp': 3, 'pcon': 5, 'aexp': 4, 'stor': 4, 'docu': 1, 
+   'Team': 3, 'pcap': 4, 'kloc': 394, 'ltex': 2, 'ruse': 2, 
+   'Resl': 1, 'time': 3, 'pvol': 5}
+```
+ 
+## Using  This Code
+
+Finally, we can generate a range of estiamtes out of this code.
+
+The following code builds _sample_ number of projects and scores
+each one with _COCOMO2_ (later, we will score thse projects in other ways).
+The results are pretty-printed using a utility called _xtiles_.
+
+````python
+def sample(samples=1000,
+            projects=[anything],
+            treatments=[doNothing],
+            score=COCOMO2):
+  samples = 1000
+  results = []
+  for project in projects:
+    for treatment in treatments:
+      what     = (project.__name__,treatment.__name__)
+      result   = [score(complete(project,treatment()))  
+                  for _ in xrange(samples)]
+      results += [[what] + result]
+  xtiles(results,width=30,show="%7.1f")
+  
+````
+
+For example:
+
+```
+>>> sample(projects=[flight,anything])
+
+rank | rx                        | median  |                                                                             
+==== | ==                        | ======= |                                                                             
+1    | ('flight', 'doNothing')   |  2696.9 | ( -*-           |              ),   35.1,  1153.3,  2693.2,  4508.0,  8981.3
+2    | ('anything', 'doNothing') |  8254.4 | (   ----*---    |              ),    6.9,  3610.8,  8238.5, 13651.2, 30233.4
+```
+
+Here's code to try all our treatments on all our projects:
+
+```
+PROJECTS  = [flight,ground,osp,osp2,anything]
+TREATMENTS= [doNothing, improvePersonnel, improveToolsTechniquesPlatform,
+             improvePrecendentnessDevelopmentFlexibility, 
+             increaseArchitecturalAnalysisRiskResolution, relaxSchedule,
+             improveProcessMaturity, reduceFunctionality]
+             
+
+def _effortsTreated():
+  for project in PROJECTS:
+    print("\n#### ",project.__name__," ","#"*50,"\n")
+    sample(projects=[project],treatments=TREATMENTS)
+```
+
+If executed, this generates the following:
+
+### FLIGHT
+
+```
+rank | rx                                                        | median  |                                                                             
+==== | ==                                                        | ======= |                                                                             
+1    | ('flight', 'reduceFunctionality')                         |  1194.6 | ( --*-          |              ),   15.1,   575.0,  1193.5,  1972.7,  3370.3
+2    | ('flight', 'improvePrecendentnessDevelopmentFlexibility') |  2222.4 | (   ----*---    |              ),   30.2,  1164.9,  2636.8,  4359.6,  8278.2
+2    | ('flight', 'increaseArchitecturalAnalysisRiskResolution') |  2280.9 | (   ---*---     |              ),   36.1,  1078.5,  2279.8,  3951.5,  6785.6
+2    | ('flight', 'improveToolsTechniquesPlatform')              |  2628.5 | (   ----*----   |              ),   30.2,  1128.8,  2624.8,  4509.4,  8597.5
+2    | ('flight', 'relaxSchedule')                               |  2855.0 | (   ----*----   |              ),   39.9,  1289.6,  2853.6,  4603.2,  8251.3
+2    | ('flight', 'improvePersonnel')                            |  2883.2 | (   -----*---   |              ),   50.5,  1299.8,  2881.8,  4634.9,  8604.1
+2    | ('flight', 'doNothing')                                   |  2894.9 | (   -----*---   |              ),   36.0,  1265.8,  2893.6,  4643.0,  8435.4
+2    | ('flight', 'improveProcessMaturity')                      |  3035.1 | (   -----*----  |              ),   33.8,  1248.4,  3029.8,  4775.5,  8949.9
+```
+
+### GROUND
+
+```
+rank | rx                                                        | median  |                                                                             
+==== | ==                                                        | ======= |                                                                             
+1    | ('ground', 'reduceFunctionality')                         |  1070.3 | ( --*-          |              ),   23.7,   495.3,  1068.4,  1676.3,  3052.0
+2    | ('ground', 'improvePrecendentnessDevelopmentFlexibility') |  2039.5 | (   ----*---    |              ),   53.2,  1069.2,  2415.9,  3876.7,  7039.0
+2    | ('ground', 'increaseArchitecturalAnalysisRiskResolution') |  2352.2 | (   ----*--     |              ),   53.2,  1075.9,  2351.4,  3574.0,  6312.3
+2    | ('ground', 'doNothing')                                   |  2370.8 | (   ----*----   |              ),   56.3,  1023.3,  2366.4,  4148.4,  7851.0
+2    | ('ground', 'relaxSchedule')                               |  2415.5 | (   ----*---    |              ),   67.6,  1129.4,  2415.2,  3928.6,  7449.6
+2    | ('ground', 'improvePersonnel')                            |  2439.6 | (   ----*----   |              ),   60.5,  1084.0,  2436.4,  4004.7,  7001.9
+2    | ('ground', 'improveToolsTechniquesPlatform')              |  2633.6 | (    ----*---   |              ),   59.7,  1240.2,  2630.5,  4132.5,  7105.8
+2    | ('ground', 'improveProcessMaturity')                      |  2671.1 | (   -----*---   |              ),   62.2,  1112.3,  2670.7,  4213.4,  7527.8
+```
+
+### OSP
+
+```
+rank | rx                                                     | median  |                                                                             
+==== | ==                                                     | ======= |                                                                             
+1    | ('osp', 'reduceFunctionality')                         |   518.0 | (  --*          |              ),  279.6,   434.2,   517.9,   609.2,   803.1
+2    | ('osp', 'improvePrecendentnessDevelopmentFlexibility') |  1200.2 | (           ---*|-             ),  658.2,   997.8,  1199.9,  1420.4,  1885.9
+3    | ('osp', 'improvePersonnel')                            |  1291.1 | (            ---*---           ),  680.5,  1080.0,  1294.7,  1528.6,  2046.5
+3    | ('osp', 'increaseArchitecturalAnalysisRiskResolution') |  1291.8 | (            ---*---           ),  716.0,  1081.1,  1291.6,  1529.8,  1992.9
+3    | ('osp', 'relaxSchedule')                               |  1293.7 | (            ---*---           ),  680.5,  1082.4,  1293.3,  1531.0,  2039.3
+3    | ('osp', 'improveToolsTechniquesPlatform')              |  1296.8 | (            ---*--            ),  743.4,  1076.1,  1296.4,  1521.4,  2043.7
+3    | ('osp', 'improveProcessMaturity')                      |  1297.6 | (            ---*---           ),  716.3,  1084.1,  1297.2,  1536.5,  2102.5
+3    | ('osp', 'doNothing')                                   |  1299.8 | (            ---*---           ),  698.9,  1079.7,  1299.8,  1545.8,  2054.4
+```
+
+### OSP2
+
+```
+rank | rx                                                      | median  |                                                                             
+==== | ==                                                      | ======= |                                                                             
+1    | ('osp2', 'reduceFunctionality')                         |   342.4 | (  --*          |              ),  226.0,   289.5,   342.4,   398.3,   475.2
+2    | ('osp2', 'improveProcessMaturity')                      |   764.0 | (              -|--*---        ),  515.3,   671.3,   788.7,   913.3,  1114.4
+2    | ('osp2', 'improvePrecendentnessDevelopmentFlexibility') |   769.0 | (              -|-*---         ),  515.3,   652.7,   767.2,   875.4,  1021.5
+2    | ('osp2', 'increaseArchitecturalAnalysisRiskResolution') |   789.6 | (               |--*---        ),  518.4,   685.3,   789.3,   910.5,  1133.4
+2    | ('osp2', 'improvePersonnel')                            |   797.6 | (              -|--*---        ),  517.7,   672.4,   797.6,   926.6,  1108.5
+2    | ('osp2', 'doNothing')                                   |   797.9 | (              -|--*---        ),  520.9,   674.7,   797.9,   931.4,  1127.4
+2    | ('osp2', 'improveToolsTechniquesPlatform')              |   805.8 | (              -|--*---        ),  517.7,   681.1,   805.6,   922.8,  1121.9
+2    | ('osp2', 'relaxSchedule')                               |   811.8 | (               |---*---       ),  515.3,   685.5,   811.3,   936.7,  1133.4
+```
+
+### ANYTHING (all COOCMO)
+
+```
+rank | rx                                                          | median  |                                                                             
+==== | ==                                                          | ======= |                                                                             
+1    | ('anything', 'reduceFunctionality')                         |  3230.2 | ( -*-           |              ),    6.8,  1386.7,  3221.5,  5555.5, 11876.5
+2    | ('anything', 'improvePrecendentnessDevelopmentFlexibility') |  6475.5 | (  ---*--       |              ),    7.0,  3039.2,  7214.9, 11984.9, 26446.2
+2    | ('anything', 'increaseArchitecturalAnalysisRiskResolution') |  6490.5 | (  --*---       |              ),    7.2,  2709.7,  6476.9, 11278.4, 21944.9
+2    | ('anything', 'improveProcessMaturity')                      |  6845.9 | (  ---*--       |              ),    7.0,  2897.5,  6821.6, 11083.2, 22207.5
+2    | ('anything', 'improveToolsTechniquesPlatform')              |  7424.2 | (  ---*--       |              ),   20.5,  3259.0,  7417.8, 11993.4, 27895.3
+2    | ('anything', 'improvePersonnel')                            |  7470.7 | (  ---*---      |              ),   18.7,  3324.8,  7470.4, 12509.5, 25775.5
+2    | ('anything', 'relaxSchedule')                               |  7828.1 | (   --*---      |              ),   11.8,  3659.0,  7815.9, 13299.1, 28334.5
+2    | ('anything', 'doNothing')                                   |  8212.3 | (  ----*---     |              ),   11.3,  3142.9,  8212.1, 13984.0, 28917.4
+```
+
+````python
+
+ 
 ````

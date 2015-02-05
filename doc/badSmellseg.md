@@ -1,23 +1,10 @@
-from __future__ import division,print_function
-import sys,random
-sys.dont_write_bytecode = True
-
-"""
+<small>_This file is part of LEANER. To know more, view the source code [badSmellseg.py](../src/badSmellseg.py) or read our [home](https://github.com/ai-se/cocomo) page._</small>
 
 # Test Cases for COCOMO
 
-"""
+````python
 from cocomo import *
-
-@go
-def _complete():
-  for _ in range(3):
-    print("\n",complete(flight))
-    
-
-@go
-def _sample1():
-  sample(projects=[flight,anything]) 
+ 
  
 PROJECTS  = [flight,ground,osp,osp2,anything]
 TREATMENTS= [doNothing, improvePersonnel, improveToolsTechniquesPlatform,
@@ -25,14 +12,19 @@ TREATMENTS= [doNothing, improvePersonnel, improveToolsTechniquesPlatform,
              increaseArchitecturalAnalysisRiskResolution, relaxSchedule,
              improveProcessMaturity, reduceFunctionality]
              
+ 
+@go
+def _badSmells():
+  sample(projects=PROJECTS,score=badSmell)
 
 @go
-def _efforts():
-  sample(projects=PROJECTS)
-
-@go
-def _effortsTreated():
+def _badSmellsTreated():
   for project in PROJECTS:
     print("\n#### ",project.__name__," ","#"*50,"\n")
-    sample(projects=[project],treatments=TREATMENTS)
+    sample(projects=[project],treatments=TREATMENTS,score=badSmell)
+
  
+ 
+
+ 
+````
