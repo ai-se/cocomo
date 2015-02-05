@@ -422,9 +422,7 @@ In the  following code:
 + `project()` accesses _Ranges(Project)_. For each of those ranges, we
   override _Ranges(Base)_.
 + Then we impose _Ranges(Treatment)_ to generate a list of valid ranges
-  consistent with _Ranges(*)_
-+ Finally, we map those ranges over the _
-+ `guess()` replaces a range with one value, picked at random
+  consistent with _Ranges(*)_ 
 + The guesses from the project are then added to  `ask` which
   pulls on value for each attribute.
 
@@ -456,7 +454,7 @@ For example, here some code to generate projects that are consistent
 with what we know about `flight` projects. Note that we call it three
 times and get three different project:
 
-python
+```python
 >>> for _ in range(3):
       print("\n",complete(flight))
 
