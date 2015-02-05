@@ -203,8 +203,8 @@ def xtile(lst,lo=0,hi=100,width=50,
     for i in range(one,two): 
       out[i] = marks[0]
     marks = marks[1:]
-  out[int(width/2)]    = bar
-  out[place(pos(0.5))] = star 
+  out[int(width/2)]    = bar;  
+  out[place(pos(0.5))] = star  
   return '('+''.join(out) +  ")," +  pretty(what)
 """
 
@@ -220,7 +220,7 @@ Assumes first item of each sublist is some tag describing the contents. e.g.
 
 """
 
-def xtiles(rows,
+def xtiles(rows,showMin=0.25,showMax=0.75,
              width=50,
              chops=[0,0.25,0.5,0.75,0.99],
               marks=[" ","-","-"," "," "],
@@ -239,8 +239,9 @@ def xtiles(rows,
             chops=chops, marks=marks, bar=bar,star=star,show=show)]
     return row
   rows = sorted(map(before,rows), key=lambda x:x[-1]) # sort on median
-  lo    = min(*map(lambda z:z[0][ 0],rows))   # get overall min
-  hi    = max(*map(lambda z:z[0][-1],rows))   # get overall max
+  nums = sorted([num for row in rows for num in row[0]])  
+  lo   = nums[  0 ]
+  hi   = nums[ -1 ]
   rank = 1
   pool = rows[0][0]
   for one,two in pairs(rows):

@@ -11,18 +11,32 @@ From the Boehm'00 book [Software Cost Estimation with Cocomo II][boehm00].
 
 [boehm00]: http://goo.gl/kJE87M "Barry W. Boehm, Clark, Horowitz, Brown, Reifer, Chulani, Ray Madachy, and Bert Steece. 2000. Software Cost Estimation with Cocomo II (1st ed.). Prentice Hall"
 
+
+The `COCOMO2` code uses the following set of tunings
+that Boehm learned, sort of, from 161 projects from
+commercial, aerospace, government, and non-profit
+organizations-- mostly from the period 1990 to 2000
+(I saw "sort of" cause Boehm actually "fiddled" with
+these numbers, here and there, using his domain
+knowledge).
+
+
 ## Overview
 
 Q: What does this code do?  
-A: It extracts valid projects from ranges.
-       + The intersction of   
-              + Ranges(Base): the background COCOMO ranges
-              + Ranges(Project): the legal values for a project
-              + Ranges(Treatment): the planned changes for a project
+A: It extracts valid projects from ranges describing:
+    + Valid COCOMO ranges (a.k.a. _Ranges(Base)_);
+    + The space of options within one project (a.k.a _Ranges(Project)_);
+    + The suggested changes to that project (a.k.a. Ranges(Treatment)_);
+    
+The _intersection_ of that that space is the _result_ of changing a project
+and our goal is to use that tool to find better changes to a project.
+       
+## Example
 
-E.g. **Ranges(Base):**
+### E.g. Ranges(Base) ###
 
-+ The space of legal values for a COCOMO project. That looks like this:
+The space of legal values for a COCOMO project. That looks like this:
 
 """
 _ = None;  Coc2tunings = dict(
@@ -51,9 +65,21 @@ _ = None;  Coc2tunings = dict(
   tool=[        1.17, 1.09, 1.00, 0.90, 0.78,    _]) 
 """
 
-E.g. **Ranges(Project):**
+For this code:
 
-+ The space of legal values for a project.
++ We use 1=v1ow, 2=low, 3=nom, 4=high, 5=vhigh, 6-xhigh.
++ The first few variables decrease effort exponentially.
++ To distinguish those _scale factors_ from the rest of the code, we  start
+  them with an upper case letter.
+
+### E.g. Ranges(Project) ###
+
+The space of legal values for a project.
+
+In  there any any uncertainties about that project then either:
+
++ The project description does not mention that item;
++ Or, that item is shown as a range of possible values.
 
 ```
 @ok # all functions defining projects have the prefix "@ok"
@@ -71,25 +97,23 @@ def flight():
     tool = [2])       
 ```
 
-+ If there any any uncertainties about that project then:
-      + The project description does not mention that item;
-      + Or, that item is shown as a range of possible values.
-      + This all looks like the following.
-            + This is a decription of flight software from NASA's 
+This is a decription of flight software from NASA's 
               Jet Propulsion lab.
-            + Some things are known with certainity; e.g. 
++ Some things are known with certainity; e.g. 
               this team makes very little use of _tools_.
-                 + Hence, _tool = [2]_ has only one value
-            + Many things are uncertain so:
-                 + We do not mention "team cohesion" (a.k.a. _team_)
+    + Hence, _tool = [2]_ has only one value
++ Many things are uncertain so:
+    + We do not mention "team cohesion" (a.k.a. _team_)
                    so this can range very log to very high
-                 + We offer some things are ranges (e.g. _kloc_
+    + We offer some things are ranges (e.g. _kloc_
                    and "process maturity" _pmat_)
 
-E.g. **Ranges(treatment):** The planned change to the project.
+### E.g. Ranges(treatment)
 
-+ For example, lets say someone decide to "treat" a project by
-  improving personnel.
+The planned change to the project.
+
+For example, lets say someone decide to "treat" a project by
+improving personnel.
 
 ```
 def improvePersonnel(): return dict(
@@ -99,54 +123,15 @@ def improvePersonnel(): return dict(
 (Note that "improving personnel" is a sad euphism for sacking your current
 contractors and hiring new ones with maximum analyst and programming capability 
 as well as programmer continuity, experience with analysis, platform and this
-development langauge.
+development langauge.)
+ 
 
 
-+ Given _background_ knowledge on the legal ranges for model values;
-+ Given a partial description of a project 
-    + That may not mention all values;
-    + That may mention values not as points, but as ranges
-+ Sample the space of possible project
-+ Report _effort_ and _risk_ for each:
-    + _Effort_ = how long will it take to build;
-    + _Risk_ = number of "bad smells" for that project
-+ Present the result in a little report.
-
-
-
-
-
-
-### Internally...
-
-The core structure of this code is a dictionary
-whose keys describe COCOMO attributes.
-Look up the value of those keys in a array of tunings.
-
+ 
 
 ## Ranges of Parameters
 
-The `COCOMO2` code uses the following set of tunings
-that Boehm learned, sort of, from 161 projects from
-commercial, aerospace, government, and non-profit
-organizations-- mostly from the period 1990 to 2000
-(I saw "sort of" cause Boehm actually "fiddled" with
-these numbers, here and there, using his domain
-knowledge).
-
-Here are the actual tunings. The variables can range
-from very low to extremely high. 
-
-
-
-The left-hand-side terms define magic COCOMO parameters. They will
-explained below. For know, we just note that:
-
-+ The first few
-variables decrease effort exponentially.
-+ To
-distinguish those _scale factors_ from the rest of the code, we  start
-them with an upper case letter.
+ 
 
 ## The COCOMO Equation.
 
@@ -220,18 +205,21 @@ what code is being developed. The above factors divide into:
 + And the _misc_ scale factors: Prec, Flex, Resl, Team, Pmat.
 
 
+## Finding Ranges
 
-## Defining Legal Ranges
+We use the above to compute estimates for projects that have certain ranges.
+Recall from the above those ranges are the intersection of
 
-The above lets us define legal
-range for inputs to the COCOMO model. For example:
++ Valid COCOMO ranges (a.k.a. _Ranges(Base)_);
++ The space of options within one project (a.k.a _Ranges(Project)_);
++ The suggested changes to that project (a.k.a. Ranges(Treatment)_);
 
-+ For `tool`, those legal values are 1,2,3,4,5 (cause
-  the most-right-hand-side value is empty.
-+ For `site`, those legal values are 1,2,3,4,5,6. 
+How do we specify all those ranges?
 
-We use this later as part of some routines to
-explore options with software projects.
+### Finding Ranges(Base)
+
+To find _Ranges(Base)_, we ask the _Coc2tunings_ table to report
+all the non-None indexes it supports.
 
 """
 def ranges(t=None):
@@ -242,7 +230,7 @@ def ranges(t=None):
   return out
 """
 
-(Note that I slipped in the range of value `kloc` values
+(Note one cheat:  I slipped in the range of value `kloc` values
 into `ranges` (2 to 1000).)
 
 Using `ranges`, we can do a little defensive programming.
@@ -271,7 +259,8 @@ def ok(f):
   return f
 """
 
-## Handling Uncertainty
+## Finding Ranges(Project)
+ 
 
 In practice, we rarely know all the exact COCOMO factors for
 any project with 100% certainty. So the real game with effort
@@ -287,7 +276,6 @@ representing the space of options within certain software being built
 at NASA.
 
 """
-
 @ok
 def flight():
   "JPL Flight systems"
@@ -406,7 +394,7 @@ For example, here some code to generate projects that are consistent
 with what we know about `flight` projects:
 
 ```
-all,_ = complete(flight)
+all = complete(flight)
 for k,v in all.items():
        print("\t",k,v)
 
