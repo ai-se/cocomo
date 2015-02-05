@@ -5,7 +5,7 @@ from columns import *
 
 """
 
-# Core COCOMO Utilities
+# Sample from the COCOMO Model
 
 From the Boehm'00 book [Software Cost Estimation with Cocomo II][boehm00].
 
@@ -26,12 +26,16 @@ knowledge).
 Q: What does this code do?  
 A: It extracts valid projects from ranges describing:
 
-+ Valid COCOMO ranges (a.k.a. _Ranges(Base)_);
-+ The space of options within one project (a.k.a _Ranges(Project)_);
-+ The suggested changes to that project (a.k.a. Ranges(Treatment)_);
++ Valid COCOMO ranges; a.k.a. "_Ranges(Base)_";
++ The space of options within one project; a.k.a "_Ranges(Project)_";
++ The suggested changes to that project; a.k.a. "_Ranges(Treatment)_";
     
-The _intersection_ of that that space is the _result_ of changing a project
-and our goal is to use that tool to find better changes to a project.
+The _intersection_ of that that space is the _result_ of changing a project.
+
+Our goal is to use this tool to 
+
++ Assess planned changes;
++ And to find better changes.
        
 ## Example
 

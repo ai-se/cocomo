@@ -8,7 +8,7 @@ with respect to the stability of those decisions.
 + [badSmells](doc/badSmells.md):  Test Cases for COCOMO
 + [badSmellseg](doc/badSmellseg.md):  Test Cases for COCOMO
 + [boot](doc/boot.md):  Boot code: stuff needed before anything else
-+ [cocomo](doc/cocomo.md):  Core COCOMO Utilities
++ [cocomo](doc/cocomo.md):  Sample from the COCOMO Model
 + [cocomoeg](doc/cocomoeg.md):  Test Cases for COCOMO
 + [column](doc/column.md):  Defining columns
 + [columns](doc/columns.md):  Handling Columns of Data
