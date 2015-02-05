@@ -17,6 +17,7 @@ publish: ; @$(make) publish
 a2ps: publish
 	mkdir -p var
 	git add var
-	pandoc -o var/$@.pdf ../doc/cocomo.md
-	a2ps var/$@.pdf -2  -o var/${@}2.pdf
+	pandoc -s -N --template=template.tex   -V fontsize=7pt ../doc/cocomo.md -o var/$@.pdf 
+	pdfnup var/$@.pdf --no-landscape  --frame true --nup 1x2 -o var/${@}2.pdf
+	mv var/${@}2.pdf var/$@.pdf
 	git add var/$@.pdf
