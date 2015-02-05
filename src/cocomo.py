@@ -400,7 +400,7 @@ def improveProcessMaturity(): return dict(
   
 @rx
 def reduceFunctionality(): return dict(
-  data = [2], nkloc=[0.5])
+  data = [2], nkloc=[0.5]) # nloc is a special symbol. Used to change kloc.
   
 @rx
 def improveTeam(): return dict(
