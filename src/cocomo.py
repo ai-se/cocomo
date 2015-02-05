@@ -25,9 +25,10 @@ knowledge).
 
 Q: What does this code do?  
 A: It extracts valid projects from ranges describing:
-    + Valid COCOMO ranges (a.k.a. _Ranges(Base)_);
-    + The space of options within one project (a.k.a _Ranges(Project)_);
-    + The suggested changes to that project (a.k.a. Ranges(Treatment)_);
+
++ Valid COCOMO ranges (a.k.a. _Ranges(Base)_);
++ The space of options within one project (a.k.a _Ranges(Project)_);
++ The suggested changes to that project (a.k.a. Ranges(Treatment)_);
     
 The _intersection_ of that that space is the _result_ of changing a project
 and our goal is to use that tool to find better changes to a project.
@@ -99,6 +100,7 @@ def flight():
 
 This is a decription of flight software from NASA's 
               Jet Propulsion lab.
+              
 + Some things are known with certainity; e.g. 
               this team makes very little use of _tools_.
     + Hence, _tool = [2]_ has only one value
