@@ -11,14 +11,16 @@ with respect to the stability of those decisions.
 + [column](doc/column.md):  Defining columns
 + [columns](doc/columns.md):  Handling Columns of Data
 + [lib](doc/lib.md):  General stuff
++ [libeg](doc/libeg.md):  Examples of Running Lib.py
+
 ## Installation
 
 COCOMO uses a standard UNIX environment (with git,
 make, python 2.7+, bash, awk, etc).  To install and test, do
 the following:
 
-
 ```
 git clone https://github.com/ai-se/cocomo.git
-python cocomoeg.py
+cd cocomo
+make tests
 ```

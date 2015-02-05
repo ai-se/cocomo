@@ -5,6 +5,14 @@ tests=$(shell cd src; ls *eg.py)
 
 make=cd src; $(MAKE) --no-print-directory
 
+all: publish typo
+
+test:
+	@$(make)  test
+
+tests:
+	@$(make)  tests
+
 typo: gitting
 	- git status
 	- git commit -am "stuff"
@@ -35,4 +43,4 @@ README.md : etc/readmeHeader etc/readmeFooter  $(md) etc/toc1.awk
 	@cat etc/readmeFooter  >> $@
 	git add $@
 
-publish:  $(md) README.md typo
+publish:  $(md) README.md  

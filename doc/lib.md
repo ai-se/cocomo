@@ -8,7 +8,7 @@ import random,math
 
 @setting
 def LIB(**d): return o(
-    "Thresholds are from http://goo.gl/25bAh9"
+    #Thresholds are from http://goo.gl/25bAh9
     dull = [0.147, 0.33, 0.474][0]
   ).update(**d)
 ````
@@ -206,48 +206,51 @@ def xtile(lst,lo=0,hi=100,width=50,
 
 ## Xtiles
 
-Combines xtile with cliffsDelta. Line one
-gets called "rank=1". Other lines get a  higher rank
-if they are different to all proceeding lines of the same rank.
+Combines xtile with cliffsDelta. Row one
+gets called "rank=1". Other rows get a  higher rank
+if they are different to all proceeding rows of the same rank.
 
 Assumes first item of each sublist is some tag describing the contents. e.g.
 [["oranges",1,4 5 3 2],
  ["apples",3,3,4,5,3,2]]
+
 ````python
 
-def xtiles(lists,
+def xtiles(rows,
              width=50,
              chops=[0,0.25,0.5,0.75,0.99],
               marks=[" ","-","-"," "," "],
               bar="|",star="*",show=" %3.1f"):
-  def before(lst):
-    rank = 1
-    txt  = lst[0]
-    nums = sorted(lst[1:]) 
-    med  = median(nums)
-    return [nums,rank,txt,med]
-  def after(lst):
-    nums = lst[0]
-    lst  = lst[1:] 
-    lst[-1] = show % lst[-1]
-    lst += [xtile(nums,lo=lo,hi=hi,width=width,
+  def before(row):
+    rank = 1                   # an initial value. we change it later
+    txt  = row[0]              # pull out the textual descriptor
+    nums = sorted(row[1:])     # sort all the rest 
+    med  = median(nums)        # get the median
+    return [nums,rank,txt,med] # return all that info
+  def after(row):
+    nums = row[0]              # stop carrying round the raw numbers
+    row  = row[1:]             # keep everything BUT those raw numbers
+    row[-1] = show % row[-1]   # pretty print the median
+    row += [xtile(nums,lo=lo,hi=hi,width=width, # add the xtile display
             chops=chops, marks=marks, bar=bar,star=star,show=show)]
-    return lst
-  lists = sorted(map(before,lists), key=lambda x:x[-1])
-  lo    = min(*map(lambda z:z[0][ 0],lists))
-  hi    = max(*map(lambda z:z[0][-1],lists))
+    return row
+  rows = sorted(map(before,rows), key=lambda x:x[-1]) # sort on median
+  lo    = min(*map(lambda z:z[0][ 0],rows))   # get overall min
+  hi    = max(*map(lambda z:z[0][-1],rows))   # get overall max
   rank = 1
-  pool = lists[0][0]
-  for one,two in pairs(lists):
-    if cliffsDelta(pool,two[0]):  
-      rank += 1
-      pool = two[0]
+  pool = rows[0][0]
+  for one,two in pairs(rows):
+    if cliffsDelta(pool,two[0]):  # This row is different to the proceeding
+      rank += 1                   # so increment the rank
+      pool = two[0]               # we have new nums to compare to the rest
     else:
-      pool += two[0]
+      pool += two[0]              # rank is the same so add these nums
+                                  # to the pool of numbers to compare with rest
     two[1] = rank
-  header=[["rank","rx","median",""],
+  header=[["rank","rx","median",""],  # pretty print stuff
          ["====","==","=======",""]] 
-  printm(header +  map(after,lists))
+  rows = map(after,rows)            # clean up list before showing
+  printm(header +  rows)    # and done
 ````
 
 ## Demo Stuff
@@ -263,12 +266,4 @@ def go(d):
     print('Demo function did not crash: False')
   return d
   
-@go 
-def _xtiles():
-  xtiles([
-        ["apples"]    + [4,5,7,4,7,6,5,8,6,5]*10,
-        ["bananas"]   + [7,9,8,9,7,9,7,7,7,9,8,7,7,9,9]*10,
-        ["oranges"]   + [1,5,5,3,3,2,4,6,3,2]*10,
-        ["pears"]     + [7,7,8,6,8,7,6,7,8,6,8,7,6,7.1,8,6]*10,
-        ["plantains"] + [7,9,8,9,7,9,7,7,7,9,8,7,7,9,9]*10])
 ````

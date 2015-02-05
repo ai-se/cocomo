@@ -2,20 +2,149 @@
 
 # Core COCOMO Utilities
 
-````python
-
-from columns import *
-
-````
-
-## Core COCOMO Equation.
-
 From the Boehm'00 book [Software Cost Estimation with Cocomo II][boehm00].
 
 [boehm00]: http://goo.gl/kJE87M "Barry W. Boehm, Clark, Horowitz, Brown, Reifer, Chulani, Ray Madachy, and Bert Steece. 2000. Software Cost Estimation with Cocomo II (1st ed.). Prentice Hall"
 
-Take a dictionary whose keys describe COCOMO attributes.
+## Overview
+
+Q: What does this code do?  
+A: It extracts valid projects from ranges.
+       + The intersction of   
+              + Ranges(Base): the background COCOMO ranges
+              + Ranges(Project): the legal values for a project
+              + Ranges(Treatment): the planned changes for a project
+
+E.g. **Ranges(Base):**
+
++ The space of legal values for a COCOMO project. That looks like this:
+
+````python
+_ = None;  Coc2tunings = dict(
+        #       vlow  low   nom   high  vhigh  xhigh   
+  Flex=[        5.07, 4.05, 3.04, 2.03, 1.01,    _],
+  Pmat=[        7.80, 6.24, 4.68, 3.12, 1.56,    _],
+  Prec=[        6.20, 4.96, 3.72, 2.48, 1.24,    _],
+  Resl=[        7.07, 5.65, 4.24, 2.83, 1.41,    _],
+  Team=[        5.48, 4.38, 3.29, 2.19, 1.01,    _],
+  acap=[        1.42, 1.19, 1.00, 0.85, 0.71,    _],
+  aexp=[        1.22, 1.10, 1.00, 0.88, 0.81,    _],
+  cplx=[        0.73, 0.87, 1.00, 1.17, 1.34, 1.74],
+  data=[           _, 0.90, 1.00, 1.14, 1.28,    _],
+  docu=[        0.81, 0.91, 1.00, 1.11, 1.23,    _],
+  ltex=[        1.20, 1.09, 1.00, 0.91, 0.84,    _],
+  pcap=[        1.34, 1.15, 1.00, 0.88, 0.76,    _], 
+  pcon=[        1.29, 1.12, 1.00, 0.90, 0.81,    _],
+  pexp=[        1.19, 1.09, 1.00, 0.91, 0.85,    _], 
+  pvol=[           _, 0.87, 1.00, 1.15, 1.30,    _],
+  rely=[        0.82, 0.92, 1.00, 1.10, 1.26,    _],
+  ruse=[           _, 0.95, 1.00, 1.07, 1.15, 1.24],
+  sced=[        1.43, 1.14, 1.00, 1.00, 1.00,    _], 
+  site=[        1.22, 1.09, 1.00, 0.93, 0.86, 0.80], 
+  stor=[           _,    _, 1.00, 1.05, 1.17, 1.46],
+  time=[           _,    _, 1.00, 1.11, 1.29, 1.63],
+  tool=[        1.17, 1.09, 1.00, 0.90, 0.78,    _]) 
+````
+
+E.g. **Ranges(Project):**
+
++ The space of legal values for a project.
+
+```
+@ok # all functions defining projects have the prefix "@ok"
+def flight():
+  "JPL Flight systems"
+  return dict(
+    kloc= xrange(7,418),
+    Pmat = [2,3],         aexp = [2,3,4,5],
+    cplx = [3,4,5,6],     data = [2,3],
+    ltex = [1,2,3,4],     pcap = [3,4,5],
+    pexp = [1,2,3,4],     rely = [3,4,5],
+    stor = [3,4],         time = [3,4],         
+    acap = [3,4,5],
+    sced = [3],
+    tool = [2])       
+```
+
++ If there any any uncertainties about that project then:
+      + The project description does not mention that item;
+      + Or, that item is shown as a range of possible values.
+      + This all looks like the following.
+            + This is a decription of flight software from NASA's 
+              Jet Propulsion lab.
+            + Some things are known with certainity; e.g. 
+              this team makes very little use of _tools_.
+                 + Hence, _tool = [2]_ has only one value
+            + Many things are uncertain so:
+                 + We do not mention "team cohesion" (a.k.a. _team_)
+                   so this can range very log to very high
+                 + We offer some things are ranges (e.g. _kloc_
+                   and "process maturity" _pmat_)
+
+E.g. **Ranges(treatment):** The planned change to the project.
+
++ For example, lets say someone decide to "treat" a project by
+  improving personnel.
+
+```
+def improvePersonnel(): return dict(
+  acap=[5],pcap=[5],pcon=[5], aexp=[5], pexp=[5], ltex=[5])
+```
+
+(Note that "improving personnel" is a sad euphism for sacking your current
+contractors and hiring new ones with maximum analyst and programming capability 
+as well as programmer continuity, experience with analysis, platform and this
+development langauge.
+
+
++ Given _background_ knowledge on the legal ranges for model values;
++ Given a partial description of a project 
+    + That may not mention all values;
+    + That may mention values not as points, but as ranges
++ Sample the space of possible project
++ Report _effort_ and _risk_ for each:
+    + _Effort_ = how long will it take to build;
+    + _Risk_ = number of "bad smells" for that project
++ Present the result in a little report.
+
+
+
+
+
+
+### Internally...
+
+The core structure of this code is a dictionary
+whose keys describe COCOMO attributes.
 Look up the value of those keys in a array of tunings.
+
+
+## Ranges of Parameters
+
+The `COCOMO2` code uses the following set of tunings
+that Boehm learned, sort of, from 161 projects from
+commercial, aerospace, government, and non-profit
+organizations-- mostly from the period 1990 to 2000
+(I saw "sort of" cause Boehm actually "fiddled" with
+these numbers, here and there, using his domain
+knowledge).
+
+Here are the actual tunings. The variables can range
+from very low to extremely high. 
+
+
+
+The left-hand-side terms define magic COCOMO parameters. They will
+explained below. For know, we just note that:
+
++ The first few
+variables decrease effort exponentially.
++ To
+distinguish those _scale factors_ from the rest of the code, we  start
+them with an upper case letter.
+
+## The COCOMO Equation.
+
 
 Using the above, generate some estimates, measured in terms of
 _development months_ where one month
@@ -26,8 +155,8 @@ the project in 20 _months_.
 
 ````python
 def COCOMO2(project, t=None,a=2.94, b=0.91):
-  t=t or Coc2tunings
-  sfs, ems, kloc = 0, 1, 10
+  t=t or Coc2tunings # t = the big table of COCOMO tuning parameters
+  sfs, ems, kloc = 0, 1, 10 # initializing some defaults
   for k,setting in project.items():
     if k == 'kloc':
       kloc = setting
@@ -85,46 +214,7 @@ what code is being developed. The above factors divide into:
   (tools, site, sced).
 + And the _misc_ scale factors: Prec, Flex, Resl, Team, Pmat.
 
-The `COCOMO2` code uses the following set of tunings
-that Boehm learned, sort of, from 161 projects from
-commercial, aerospace, government, and non-profit
-organizations-- mostly from the period 1990 to 2000
-(I saw "sort of" cause Boehm actually "fiddled" with
-these numbers, here and there, using his domain
-knowledge).
 
-Here are the actual tunings. The variables can range
-from very low to extremely high. The first few
-variables decrease effort exponentially and to
-distinguish those _scale factors_, we will start
-them with an upper case letter.
-
-````python
-_ = None;  Coc2tunings = dict(
-        #       vlow  low   nom   high  vhigh  xhigh   
-  Flex=[        5.07, 4.05, 3.04, 2.03, 1.01,    _],
-  Pmat=[        7.80, 6.24, 4.68, 3.12, 1.56,    _],
-  Prec=[        6.20, 4.96, 3.72, 2.48, 1.24,    _],
-  Resl=[        7.07, 5.65, 4.24, 2.83, 1.41,    _],
-  Team=[        5.48, 4.38, 3.29, 2.19, 1.01,    _],
-  acap=[        1.42, 1.19, 1.00, 0.85, 0.71,    _],
-  aexp=[        1.22, 1.10, 1.00, 0.88, 0.81,    _],
-  cplx=[        0.73, 0.87, 1.00, 1.17, 1.34, 1.74],
-  data=[           _, 0.90, 1.00, 1.14, 1.28,    _],
-  docu=[        0.81, 0.91, 1.00, 1.11, 1.23,    _],
-  ltex=[        1.20, 1.09, 1.00, 0.91, 0.84,    _],
-  pcap=[        1.34, 1.15, 1.00, 0.88, 0.76,    _], 
-  pcon=[        1.29, 1.12, 1.00, 0.90, 0.81,    _],
-  pexp=[        1.19, 1.09, 1.00, 0.91, 0.85,    _], 
-  pvol=[           _, 0.87, 1.00, 1.15, 1.30,    _],
-  rely=[        0.82, 0.92, 1.00, 1.10, 1.26,    _],
-  ruse=[           _, 0.95, 1.00, 1.07, 1.15, 1.24],
-  sced=[        1.43, 1.14, 1.00, 1.00, 1.00,    _], 
-  site=[        1.22, 1.09, 1.00, 0.93, 0.86, 0.80], 
-  stor=[           _,    _, 1.00, 1.05, 1.17, 1.46],
-  time=[           _,    _, 1.00, 1.11, 1.29, 1.63],
-  tool=[        1.17, 1.09, 1.00, 0.90, 0.78,    _]) 
-````
 
 ## Defining Legal Ranges
 
