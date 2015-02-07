@@ -13,7 +13,8 @@ import random,math
 @setting
 def LIB(**d): return o(
     #Thresholds are from http://goo.gl/25bAh9
-    dull = [0.147, 0.33, 0.474][0]
+    dull = [0.147, 0.33, 0.474][0],
+    keep = 128
   ).update(**d)
 """
 
@@ -39,7 +40,9 @@ pi=math.pi
 e=math.e
 sqrt=math.sqrt
 log=math.log
-
+ 
+def gt(x,y) : return x > y
+def lt(x,y) : return x < y
 def mult(lst): return reduce(lambda x,y: x*y,lst)
 """
 
@@ -139,6 +142,61 @@ def cliffsDelta(lst1,lst2,dull=None):
     less += (n - j)*repeats
   d= (more - less) / (m*n) 
   return abs(d)  > dull
+"""
+ 
+A _Cache_ is a place to remember some items
+in array of size, at most, _size_
+(which is initially a list of _None_).
+
+"""
+class Cache():
+  def __init__(i,keep=None):
+    i.keep  = keep of  the.LIB.keep 
+    i.reset()
+  def reset(i):
+    i.n = 0
+    i._kept = [None]*i.keep
+  def tell(i,x):
+    i.n += 1
+    l = len(i._kept)
+    if r() <= l/i.n: i._kept[ int(r()*l) ]= x
+  def contents(): 
+    return sorted([x for x in i._kept if x is not None])
+"""
+
+"_N_" is a place to incrementally add and delete
+to our knowledge of the mean and standard deviation (_mu_, _sd()_)
+of a set of numbers.  
+When we need more info that _mu_ and _sd()_
+(e.g. if we are testing the _cliffsDelta_ between two populations),
+the message .cache.contents() returns a sorted sample 
+of the numbers seen so far.
+
+"""
+class N():  
+    def __init__(i,inits=[]):
+      i.zero()
+      for number in inits: i + number 
+    def zero(i): 
+        i.cache = Cache()
+        i.n = i.mu = i.m2 = 0.0
+    def sd(i)  : 
+      if i.n < 2: return i.mu
+      else:       
+        return (max(0,i.m2)*1.0/(i.n - 1))**0.5
+    def __add__(i,x):
+      i.cache.tell(x)
+      i.n  += 1
+      delta = x - i.mu
+      i.mu += delta/(1.0*i.n)
+      i.m2 += delta*(x - i.mu)
+    def __sub__(i,x):
+      i.cache.reset()
+      if i.n < 2: return i.zero()
+      i.n  -= 1
+      delta = x - i.mu
+      i.mu -= delta/(1.0*i.n)
+      i.m2 -= delta*(x - i.mu)    
 """
 
 ## Printing stuff
