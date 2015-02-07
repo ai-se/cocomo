@@ -14,7 +14,6 @@ with respect to the stability of those decisions.
 + [columns](doc/columns.md):  Handling Columns of Data
 + [lib](doc/lib.md):  General stuff
 + [libeg](doc/libeg.md):  Examples of Running Lib.py
-+ [optimize](doc/optimize.md):  Optimization : not done yeat
 
 ## Installation
 

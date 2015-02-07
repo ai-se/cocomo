@@ -198,7 +198,7 @@ def xtile(lst,lo=0,hi=100,width=50,
     for i in range(one,two): 
       out[i] = marks[0]
     marks = marks[1:]
-  out[int(width/2)]    = bar;  
+  out[int(width/2)]    = bar; 
   out[place(pos(0.5))] = star  
   return '('+''.join(out) +  ")," +  pretty(what)
 ````
@@ -224,7 +224,7 @@ def xtiles(rows,showMin=0.25,showMax=0.75,
     rank = 1                   # an initial value. we change it later
     txt  = row[0]              # pull out the textual descriptor
     nums = sorted(row[1:])     # sort all the rest 
-    med  = median(nums)        # get the median
+    med  = nums[ int( round(len(nums)*0.5)) ]        # get the median
     return [nums,rank,txt,med] # return all that info
   def after(row):
     nums = row[0]              # stop carrying round the raw numbers

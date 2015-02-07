@@ -165,11 +165,16 @@ Here's the bad smells seen in 1000 randomly generated projects. Note that
 `osp` really stinks.
 
 ```
-      osp, (    -------   *|  ----------  ),    8,    19,    25,    32,    49
- anything, (--   *  -------|-------       ),    0,     5,     9,    15,    40
-   flight, (--  * ------   |              ),    0,     5,     8,    11,    22
-     osp2, (  *-           |              ),    4,     4,     5,     6,     8
-   ground, (- *--------    |              ),    0,     2,     4,     6,    20
+>>>  sample(projects=[flight,ground,osp,osp2,anything],
+            score=badSmell)
+
+rank | rx                        | median  |                                                                             
+==== | ==                        | ======= |                                                                             
+1    | ('ground', 'doNothing')   |     4.0 | ( -*            |              ),    0.0,     2.0,     4.0,     6.0,    14.0
+2    | ('osp2', 'doNothing')     |     5.0 | (  -*           |              ),    4.0,     4.0,     5.0,     6.0,     8.0
+3    | ('flight', 'doNothing')   |     8.0 | (   -*--        |              ),    0.0,     5.0,     8.0,    12.0,    32.0
+3    | ('anything', 'doNothing') |     8.0 | (  --*---       |              ),    0.0,     4.0,     8.0,    14.0,    35.0
+4    | ('osp', 'doNothing')      |    26.0 | (           ---*|--            ),    8.0,    20.0,    26.0,    32.0,    46.0
 ```
 
 To see why, we  collected 1000 samples from `osp` and looked at the 
@@ -186,25 +191,84 @@ def whatStinks(project,n=1000,rx=None):
   return lst[:12]
 """
 
-The results showed that, with `osp`, there are many
-times we are trying to build highly reliable or
-highly complex software using lower-end developers.
+Running the above code gives us a report
+on what dumb things people are doing on projects.
+E.g. as shown below, for _flight_ systems, we often do things
+like building complex systems with very little tools support.
 
 ```
-stink = 2.13 when rely = 5 and acap = 2
-stink = 2.00 when rely = 5 and pcap = 3
-stink = 1.08 when cplx = 6 and acap = 2
-stink = 1.05 when rely = 5 and Pmat = 2
-stink = 0.99 when cplx = 6 and pcap = 3
-stink = 0.94 when rely = 5 and acap = 3
-stink = 0.89 when cplx = 6 and tool = 2
-stink = 0.71 when sced = 1 and acap = 2
-stink = 0.65 when sced = 1 and aexp = 2
-stink = 0.65 when sced = 1 and pexp = 3
-stink = 0.65 when sced = 1 and pcap = 3
-stink = 0.54 when cplx = 6 and tool = 3
+def _whatStinks():
+    rseed(1)
+    for project in PROJECTS:
+        print("\n",project.__name__)
+        stinks = whatStinks(project)
+        worst  = stinks[0][0]
+        for stink,what in stinks:
+            if stink > worst*0.5:
+                print('stink = ',stink,' when ',what)
+
+>>> _whatStinks()
+
+ flight
+stink =  1048  when  ('cplx', 6, 'tool', 2)
+stink =  712  when  ('rely', 5, 'Pmat', 2)
+
+ ground
+stink =  498  when  ('tool', 2, 'Pmat', 2)
+stink =  261  when  ('sced', 3, 'cplx', 1)
+stink =  260  when  ('rely', 4, 'Pmat', 2)
+stink =  253  when  ('sced', 3, 'aexp', 2)
+
+ osp
+stink =  2000  when  ('rely', 5, 'pcap', 3)
+stink =  1940  when  ('rely', 5, 'acap', 2)
+stink =  1088  when  ('rely', 5, 'Pmat', 2)
+stink =  1030  when  ('rely', 5, 'acap', 3)
+stink =  1026  when  ('cplx', 6, 'pcap', 3)
+
+ osp2
+stink =  2000  when  ('rely', 5, 'pcap', 3)
+
+ anything
+stink =  220  when  ('time', 6, 'acap', 2)
+stink =  212  when  ('stor', 6, 'pcap', 2)
+stink =  200  when  ('ruse', 6, 'aexp', 2)
+stink =  196  when  ('time', 6, 'pcap', 2)
+stink =  196  when  ('sced', 1, 'aexp', 2)
+stink =  184  when  ('sced', 1, 'pcap', 2)
+stink =  168  when  ('stor', 6, 'acap', 2)
+stink =  168  when  ('ruse', 6, 'ltex', 2)
+stink =  164  when  ('sced', 1, 'pexp', 2)
+stink =  144  when  ('rely', 5, 'pcap', 2)
+stink =  140  when  ('sced', 1, 'acap', 2)
+stink =  140  when  ('cplx', 6, 'pcap', 2)
+``` 
+
+Do our treatments effect the bad smells?
+The following code shows that removing bad smells with (e.g.)
+improved precedentless a development flexibility is just as useless
+as doing nothing. But improving personnel can be very useful.
+
 ```
-Another problem, that appears four times at the end of the list,
-is that we are rushing to complete the project using lower-end developers.
+def _badSmellsTreated():
+  rseed(1)
+  for project in [anything]: 
+    sample(projects   = [project],
+           treatments = TREATMENTS,
+           score      = badSmell)
 
+>>> _badSmellsTreated()
+ 
+rank | rx                                                          | median  |                                                                             
+==== | ==                                                          | ======= |                                                                             
+1    | ('anything', 'improvePersonnel')                            |     2.0 | (-*             |              ),    0.0,     0.0,     2.0,     4.0,    12.0
+2    | ('anything', 'improveToolsTechniquesPlatform')              |     5.0 | (  -*-          |              ),    0.0,     3.0,     6.0,    10.0,    25.0
+2    | ('anything', 'relaxSchedule')                               |     6.0 | (  -*--         |              ),    0.0,     3.0,     6.0,    11.0,    26.0
+3    | ('anything', 'improveProcessMaturity')                      |     8.0 | (  ---*--       |              ),    0.0,     4.0,     9.0,    15.0,    35.0
+3    | ('anything', 'doNothing')                                   |     9.0 | (  ---*--       |              ),    0.0,     4.0,     9.0,    15.0,    35.0
+3    | ('anything', 'improvePrecendentnessDevelopmentFlexibility') |     9.0 | (   --*--       |              ),    0.0,     5.0,     9.0,    15.0,    37.0
+3    | ('anything', 'increaseArchitecturalAnalysisRiskResolution') |     9.0 | (  ---*--       |              ),    0.0,     4.0,     9.0,    15.0,    35.0
+3    | ('anything', 'reduceFunctionality')                         |     9.0 | (   --*--       |              ),    0.0,     5.0,     9.0,    15.0,    34.0
+```
 
+"""
