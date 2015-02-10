@@ -208,7 +208,8 @@ def _whatStinks():
                 print('stink = ',stink,' when ',what)
 ```
 
-What does that look lije when it runs?
+When this runs, it reports all stinks that are at least as bad
+as half the worst stink.
 
 ```
 >>> _whatStinks()
@@ -253,14 +254,18 @@ The following code shows that removing bad smells with (e.g.)
 improved precedentless a development flexibility is just as useless
 as doing nothing. But improving personnel can be very useful.
 
-```
+```python
 def _badSmellsTreated():
   rseed(1)
   for project in [anything]: 
     sample(projects   = [project],
            treatments = TREATMENTS,
            score      = badSmell)
+```
 
+And what does that get us?
+
+```
 >>> _badSmellsTreated()
  
 rank | rx                                                          | median  |                                                                             
