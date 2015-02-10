@@ -10,8 +10,7 @@ with respect to the stability of those decisions.
 + [boot](doc/boot.md):  Boot code: stuff needed before anything else
 + [cocomo](doc/cocomo.md):  Sample from the COCOMO Model
 + [cocomoeg](doc/cocomoeg.md):  Test Cases for COCOMO
-+ [column](doc/column.md):  Defining columns
-+ [columns](doc/columns.md):  Handling Columns of Data
++ [data](doc/data.md):  Storing data in tables
 + [lib](doc/lib.md):  General stuff
 + [libeg](doc/libeg.md):  Examples of Running Lib.py
 

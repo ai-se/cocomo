@@ -192,7 +192,7 @@ on what dumb things people are doing on projects.
 E.g. as shown below, for _flight_ systems, we often do things
 like building complex systems with very little tools support.
 
-```
+```python
 def _whatStinks():
     rseed(1)
     for project in PROJECTS:
@@ -202,7 +202,11 @@ def _whatStinks():
         for stink,what in stinks:
             if stink > worst*0.5:
                 print('stink = ',stink,' when ',what)
+```
 
+What does that look lije when it runs?
+
+```
 >>> _whatStinks()
 
  flight

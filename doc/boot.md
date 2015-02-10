@@ -24,6 +24,7 @@ class o:
     return '{'+' '.join(show)+'}'
 ````
 
+
 ## `setting`: a Wrapper that remembers the Settings
 
 ````python
