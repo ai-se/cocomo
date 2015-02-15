@@ -9,11 +9,15 @@ sys.dont_write_bytecode = True
 """
 from cocomo import *
 
+
 @go
 def _complete():
   for _ in range(3):
     print("\n",complete(flight))
+    #,
+     #       reduceFunctionality()))
     
+exit()
 
 @go
 def _sample1():
