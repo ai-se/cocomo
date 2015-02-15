@@ -10,6 +10,15 @@ Each line of table is store as a row. _Row_ has a unique
 integer hash (so interesections of set of _Row_s is very fast).
 
 """
+from counts import *
+
+@setting
+def DATA(**d): return o(
+    #Thresholds are from http://goo.gl/25bAh9
+    more = ">",
+    less = "<"
+  ).update(**d)
+
 class Row:
   id=0
   def __init__(i,cells,score):
@@ -47,13 +56,13 @@ always is a number zero to one).
 def data(**d):  
   lo,hi={},{}
   def lohi0(j,n):  
-      hi[j] = max(n, hi.get(j,-1*The.lib.most))
-      lo[j] = min(n, lo.get(j,   The.lib.most))
+      hi[j] = max(n, hi.get(j,-1*the.LIB.most))
+      lo[j] = min(n, lo.get(j,   the.LIB.most))
   def lohi(one):
     for j in less: lohi0(j,one[j])
     for j in more: lohi0(j, one[j])
   def norm(j,n):  
-    return (n - lo[j] ) / (hi[j] - lo[j] + The.lib.tiny) 
+    return (n - lo[j] ) / (hi[j] - lo[j] + the.LIB.tiny) 
   def fromHell(one):
     all,n = 0,0
     moreHell, lessHell = 0,1
@@ -66,13 +75,16 @@ def data(**d):
     return all**2 / n**2
   names=d["names"] 
   data=d["data"]
-  more=[i for i,name in enumerate(names) if ">" in name]
-  less=[i for i,name in enumerate(names) if "<" in name]
+  more=[i for i,name in enumerate(names)
+          if the.DATA.more in name]
+  less=[i for i,name in enumerate(names)
+          if the.DATA.less in name]
   dep = more+less
   indep=[i for i,name in enumerate(names) if not i in dep]
   for one in data: lohi(one)
-  return o(more=more,less=less,indep=indep,names=names,
+  out = o(more=more,less=less,indep=indep,names=names,
            data=map(lambda one: Row(one,
                                     fromHell(one)),
                     data))
-  
+  out.score = sum(map(lambda z: z.score,out.data))/len(out.data)
+  return out

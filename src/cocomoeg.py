@@ -12,13 +12,13 @@ from cocomo import *
 
 @go
 def _complete():
-  for _ in range(3):
-    print("\n",complete(flight))
-    #,
-     #       reduceFunctionality()))
+  rseed(1)
+  for _ in range(4):
+    print(complete(flight))
+  print("")
+  for _ in range(4):
+    print(complete(flight), reduceFunctionality())
     
-exit()
-
 @go
 def _sample1():
   sample(projects=[flight,anything]) 
@@ -28,7 +28,6 @@ TREATMENTS= [doNothing, improvePersonnel, improveToolsTechniquesPlatform,
              improvePrecendentnessDevelopmentFlexibility, 
              increaseArchitecturalAnalysisRiskResolution, relaxSchedule,
              improveProcessMaturity, reduceFunctionality]
-             
 
 @go
 def _efforts():

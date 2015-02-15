@@ -7,7 +7,7 @@ sys.dont_write_bytecode = True
 Multi-objective optimization
 
 """
-from data import *
+from readdata import *
 from counts import *
 
 @setting
@@ -68,27 +68,29 @@ Return the ranges:
   the the mean score of all rows.
   
 """
-def ranges(t,atLeast=0):
+def ranges(t,atLeast=None):
   out = []
+  if atLeast is None:
+    atLeast = t.score
   for column  in t.indep: 
     tmp = sdiv(t.data,attr=t.names[column],
-              tiny = the.RULER.ranges.tiny,
+              tiny = the.RULER.rules.tiny,
               x    = lambda z : z[column],
               y    = lambda z : z.score,
-              small= the.RULER.ranges.small)
+              small= the.RULER.rules.small)
     if len(tmp) > 1: # this column is useful
         out += tmp 
   return [one for one in out if # better mu than b4
-          better(one.y.mu,atLeast)]
+          the.RULER.better(one.y.mu,atLeast)]
 
-def ruler(t):
+def ruler(t,k=1):
   b4       = N(map(lambda l:l.score,t.data))
   hitherto = b4.mu  
   rules    = map(lambda z : Rule([z],z.rows),
                  ranges(t, hitherto))
   n = 0 
   for _ in xrange(the.RULER.rules.retries):
-    rules = sorted(rules,key=lambda z: z.score)[-1*the.Ruler.rules.beam:] 
+    rules = sorted(rules,key=lambda z: z.score)[-1*the.RULER.rules.beam:] 
     for i in xrange(the.RULER.rules.repeats): 
       n += 1
       rule1  = random.choice(rules)
@@ -99,5 +101,5 @@ def ruler(t):
           if the.RULER.rules.enough(rule3.rows,t.data):
             hitherto = rule3.score
             rules += [rule3]
-  return sorted(rules,key=lambda z: z.score)[-1])
+  return sorted(rules,key=lambda z: z.score)[-1*k:]
 

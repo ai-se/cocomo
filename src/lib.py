@@ -13,7 +13,9 @@ import random,math
 @setting
 def LIB(**d): return o(
     #Thresholds are from http://goo.gl/25bAh9
-    dull = [0.147, 0.33, 0.474][0]
+    dull = [0.147, 0.33, 0.474][0], 
+    most = 10**32,
+    tiny = 0.00001
   ).update(**d)
 """
 

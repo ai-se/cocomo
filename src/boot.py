@@ -13,11 +13,12 @@ do not need methods.
 
 """
 class o:
-  def d(i)           : return i.__dict__
-  def update(i,**d)  : i.d().update(**d); return i
-  def has(i,k)    : return k in i.d()
-  def __init__(i,**d): i.update(**d)
-  def __repr__(i)    : 
+  def d(i)            : return i.__dict__
+  def update(i,**d)   : i.d().update(**d); return i
+  def has(i,k)        : return k in i.d()
+  def __init__(i,**d) : i.update(**d)
+  def __getitem__(i,k): return i.d()[k]
+  def __repr__(i)     : 
     def name(x):
       f = lambda x: x.__class__.__name__ == 'function'
       return x.__name__ if f(x) else x

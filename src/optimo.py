@@ -2,7 +2,8 @@ from __future__ import division,print_function
 import sys 
 sys.dont_write_bytecode = True
 
-from ruler import *
+#from ruler import *
+from data import *
 from cocomo import *
 from badSmells import *
 
@@ -14,11 +15,12 @@ def sampleN(samples=1000,
             scores=[COCOMO2,badSmell,kloc]):
   names= sorted(Coc2tunings.keys())
   for project in projects:
-    out    = o(names=names,data=[])
-    o.name = (project.__name__,treatment.__name__)
-    for _ in xrange(samples):
-       p = complete(project,treatment()) 
-       out.data += [[p[n] for n in names]+
-                    [s(p) for s in scores]]
-    yield data(o)
+    for treatment in treatments:
+      out    = o(names=names,data=[])
+      o.name = (project.__name__,treatment.__name__)
+      for _ in xrange(samples):
+        p = complete(project,treatment()) 
+        out.data += [[p[n] for n in names]+
+                     [s(p) for s in scores]]
+      yield data(out.data)
 

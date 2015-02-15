@@ -21,6 +21,8 @@ a2ps: publish
 	pdfnup var/$@.pdf --no-landscape  --frame true --nup 1x2 -o var/${@}2.pdf
 	mv var/${@}2.pdf var/$@.pdf
 	git add var/$@.pdf
-	
-test1:; python libeg.py
-test2:; python countseg.py
+
+eg1:; python libeg.py
+eg2:; python countseg.py
+eg3:; python cocomoeg.py
+eg4:; python badSmellseg.py

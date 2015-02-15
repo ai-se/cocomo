@@ -7,8 +7,8 @@ from lib import *
 @setting
 def CNT(**d): return o(
     #Thresholds are from http://goo.gl/25bAh9
-    sDivTiny = 4,
-    sDivCohen = 0.3,
+    sdivTiny = 4,
+    sdivCohen = 0.3,
     keep = 128
   ).update(**d)
 """
