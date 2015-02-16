@@ -2,12 +2,10 @@ from __future__ import division,print_function
 import sys
 sys.dont_write_bytecode = True
 
-from lib      import *
-from readdata import *
 from ruler    import *
 
 def housing(): return data(
-  names=['crim','zone','indus','chas','nox','rm','age','dis',
+  names=['crim','zone','indus','chas','nox','>rm','age','dis',
          'rad','tax','ptration','bm','lstat','>medv'],
   data =[
 [0.00632,18.00,2.310,0,0.5380,6.5750,65.20,4.0900,1,296.0,15.30,396.90,4.98,24.00],
@@ -530,14 +528,21 @@ def _data():
 
 @go
 def _ranges():
-  t=housing()
-  for r in ranges(t): print(r)
+  LIB(seed=1)
+  RULER(tiny=4)
+  def _ranges():
+    for z in ranges(housing()): print(z)
+  run(_ranges)
+  
 
 @go
 def _ruler():
-  rseed(1)
-  t=housing()
-  for r in ruler(t,5):
-    print(r.score,r)
-
+  LIB(seed=1)
+  RULER(tiny=4,better=gt)
+  def _ruler():
+    t=housing()
+    print(t.score, "baseline :",len(t.data))
+    for z in ruler(t):
+      print(z.score,z)
+  run(_ruler)
 

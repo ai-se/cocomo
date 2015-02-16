@@ -15,7 +15,8 @@ def LIB(**d): return o(
     #Thresholds are from http://goo.gl/25bAh9
     dull = [0.147, 0.33, 0.474][0], 
     most = 10**32,
-    tiny = 0.00001
+    tiny = 0.00001,
+    seed = 1
   ).update(**d)
 """
 
@@ -41,7 +42,8 @@ pi=math.pi
 e=math.e
 sqrt=math.sqrt
 log=math.log
- 
+
+def whatever(x,y): return True
 def gt(x,y) : return x > y
 def lt(x,y) : return x < y
 def mult(lst): return reduce(lambda x,y: x*y,lst)
@@ -51,7 +53,10 @@ def mult(lst): return reduce(lambda x,y: x*y,lst)
 
 """
 r     = random.random
-rseed = random.seed
+
+def rseed(seed=None):
+  if seed is None: seed = the.LIB.seed
+  random.seed(seed)
 
 def ask(x):
   return random.choice(list(x))
@@ -155,9 +160,19 @@ def go(d):
   doc= '# '+d.__doc__+"\n" if d.__doc__ else ""
   s='|'+'='*40 +'\n'
   print('\n==|',d.func_name + ' ' + s+doc)
-  try:
-    d()
-  except:
-    print('Demo function did not crash: False')
+  d()
   return d
   
+def run(f):
+  import datetime,time
+  show = datetime.datetime.now().strftime
+  print("\n###",f.__name__,"#" * 50)
+  print("#", show("%Y-%m-%d %H:%M:%S"),"\n")
+  THAT()       # print the options
+  rseed()
+  print("")
+  t1 = time.time()
+  f()          # run the function
+  t2 = time.time() # show how long it took to run
+  print("\n#" + ("-" * 72))
+  print("# Runtime: %.3f secs" % (t2-t1))

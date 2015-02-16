@@ -18,15 +18,17 @@ class o:
   def has(i,k)        : return k in i.d()
   def __init__(i,**d) : i.update(**d)
   def __getitem__(i,k): return i.d()[k]
-  def __repr__(i)     : 
-    def name(x):
-      f = lambda x: x.__class__.__name__ == 'function'
-      return x.__name__ if f(x) else x
+  def __repr__(i):
     keys = [k for k in sorted(i.d().keys()) 
             if k[0] is not "_"]
     show = [':%s %s' % (k, name(i.d()[k])) 
             for k in keys]
     return '{'+' '.join(show)+'}'
+
+def name(x):
+  f=lambda z: z.__class__.__name__ == 'function'
+  return 'function(%s)'% x.__name__ if f(x) else x
+  
 """
 
 
@@ -52,9 +54,13 @@ Use the following to print the global settings
 """
 def THAT(x=the,s="",pre=""):
   d = x.d()
-  say(pre)
+  print(pre,end="")
   for k in sorted(d.keys()):
     if k[0] is not "_":
-      say(s + (':%s ' % k))
+      print(s + (':%s ' % k),end="")
       y = d[k]
-      THAT(y,s+"   ","\n") if ako(y,o) else print(y)
+      if isinstance(y,o):
+        THAT(y,s+"   ","\n")
+      else:
+        print(name(y))
+

@@ -21,6 +21,7 @@ def RULER(**d):
              repeats=32,
              beam=16,
              retries=32,
+             fresh=0.33,
              enough=enough)
   ).update(**d)
 """
@@ -68,10 +69,10 @@ Return the ranges:
   the the mean score of all rows.
   
 """
-def ranges(t,atLeast=None):
+def ranges(t):
   out = []
-  if atLeast is None:
-    atLeast = t.score
+  atLeast = t.score
+  better  = the.RULER.better
   for column  in t.indep: 
     tmp = sdiv(t.data,attr=t.names[column],
               tiny = the.RULER.rules.tiny,
@@ -81,25 +82,49 @@ def ranges(t,atLeast=None):
     if len(tmp) > 1: # this column is useful
         out += tmp 
   return [one for one in out if # better mu than b4
-          the.RULER.better(one.y.mu,atLeast)]
+          better(one.y.mu,atLeast)]
 
-def ruler(t,k=1):
-  b4       = N(map(lambda l:l.score,t.data))
-  hitherto = b4.mu  
-  rules    = map(lambda z : Rule([z],z.rows),
-                 ranges(t, hitherto))
-  n = 0 
-  for _ in xrange(the.RULER.rules.retries):
-    rules = sorted(rules,key=lambda z: z.score)[-1*the.RULER.rules.beam:] 
-    for i in xrange(the.RULER.rules.repeats): 
-      n += 1
-      rule1  = random.choice(rules)
-      rule2  = random.choice(rules) 
-      rule3  = rule1+rule2
-      if rule3:
-        if rule3.score > hitherto: 
-          if the.RULER.rules.enough(rule3.rows,t.data):
-            hitherto = rule3.score
-            rules += [rule3]
-  return sorted(rules,key=lambda z: z.score)[-1*k:]
+def ruler(t):
+  retries = xrange(the.RULER.rules.retries)
+  repeats = xrange(the.RULER.rules.repeats)
+  out     = []
+  taboo   = set()
+  ranges0 = ranges(t)
+  while True:
+    best  = None
+    top   = t.score
+    rules = ranges2Rules(ranges0)
+    for _ in retries:
+      rules = bestRules(rules)
+      for _ in repeats:
+        rule = ask(rules) + ask(rules)
+        if rule:
+          if rule.score > top:
+            if wellSupported(rule.rows,t):
+              if not tabooed(rule.rows,taboo):
+                best   = rule
+                top    = rule.score
+                rules += [rule]
+    if best:
+      taboo = taboo | best.rows
+      out  += [best]
+    else:
+      break
+  return out
 
+def wellSupported(rows,t):
+  return the.RULER.rules.enough(rows,t.data)
+
+def tabooed(rows,taboo):
+  overlap = len(rows & taboo)
+  tooMuch = len(rows) * the.RULER.rules.fresh
+  return  overlap >= tooMuch
+
+def bestRules(rules):
+  return sorted(rules,
+                key=lambda z: z.score)[
+                  -1*the.RULER.rules.beam:]
+
+def ranges2Rules(ranges):
+  return map(lambda z : Rule([z],z.rows),
+             ranges)

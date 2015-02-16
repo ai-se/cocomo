@@ -30,7 +30,7 @@ are greater or smaller than each item of _lst1_.
 
 This version sorts the lists before making
 that test. For lists containing 100,1000,10000
-random numbers, this implementations
+random numbers,this implementations
 is  one to three orders
 of magnitude faster
 than another version that does not
