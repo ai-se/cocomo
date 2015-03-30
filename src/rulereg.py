@@ -8,7 +8,3 @@ sys.dont_write_bytecode =True
 
 """
 
-from lib import *
-from data import *
-
-def _cocData
